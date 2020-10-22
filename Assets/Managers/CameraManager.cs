@@ -1,4 +1,5 @@
-﻿using Assets.Managers;
+﻿using Assets.Enums;
+using Assets.Managers;
 using Assets.Models;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ public class CameraManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(MainManager.CanvasManager.GameMode == GameMode.THE_GAME)
+        if(MainManager.GameMode == GameModeEnum.THE_GAME)
         {
             if (Input.GetMouseButton(0))
             {

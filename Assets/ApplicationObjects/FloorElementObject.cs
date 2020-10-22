@@ -1,4 +1,5 @@
-﻿using Assets.Models;
+﻿using Assets.Enums;
+using Assets.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +13,14 @@ namespace Assets.ApplicationObjects
     {
         public GameObject GameObject { get; set; }
         public Vector3 Location { get; set; }
-        public FloorElementType FloorElementType { get; set; }
+        public FloorElementTypeEnum FloorElementType { get; set; }
         public FloorElementObject(GameObject gameObject)
         {
             GameObject = gameObject;
             Location = gameObject.transform.localPosition;
         }
 
-        public FloorElementObject(GameObject gameObject, Vector3 location, FloorElementType floorElementType)
+        public FloorElementObject(GameObject gameObject, Vector3 location, FloorElementTypeEnum floorElementType)
         {
             GameObject = gameObject;
             Location = location;

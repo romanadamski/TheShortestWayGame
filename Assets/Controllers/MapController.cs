@@ -1,4 +1,5 @@
 ﻿using Assets.ApplicationObjects;
+using Assets.Enums;
 using Assets.Models;
 using Assets.SavedMaps;
 using System;
@@ -94,12 +95,12 @@ namespace Assets.Controllers
 
         private void setStartAndFinish()
         {
-            List<FloorElementObject> normalFloorElements = ActiveMap.FloorElements.Where(x => x.FloorElementType == FloorElementType.NORMAL).ToList();
+            List<FloorElementObject> normalFloorElements = ActiveMap.FloorElements.Where(x => x.FloorElementType == FloorElementTypeEnum.NORMAL).ToList();
             FloorElementObject startElement = normalFloorElements[Random.Next(0, normalFloorElements.Count)];
-            startElement.FloorElementType = FloorElementType.START;
+            startElement.FloorElementType = FloorElementTypeEnum.START;
             normalFloorElements.Remove(startElement);
             FloorElementObject endElement = normalFloorElements[Random.Next(0, normalFloorElements.Count)];
-            endElement.FloorElementType = FloorElementType.FINISH;
+            endElement.FloorElementType = FloorElementTypeEnum.FINISH;
         }
 
         private void clearFloorElements()
@@ -121,7 +122,7 @@ namespace Assets.Controllers
                     prefabFloor.transform.parent = Floor.transform;
                     prefabFloor.transform.localPosition = new Vector3(i, 0, j);
                     FloorElementObject floorElement = new FloorElementObject(prefabFloor);
-                    floorElement.FloorElementType = FloorElementType.NORMAL;
+                    floorElement.FloorElementType = FloorElementTypeEnum.NORMAL;
                     ActiveMap.FloorElements.Add(floorElement);
                 }
             }
@@ -146,7 +147,7 @@ namespace Assets.Controllers
                 int obstacleZ = Random.Next(0, ActiveMap.MapSize);
 
                 var floorElement = ActiveMap.FloorElements.Find(x => x.GameObject.transform.localPosition == new Vector3(obstacleX, 0, obstacleZ));
-                floorElement.FloorElementType = FloorElementType.OBSTACLE;
+                floorElement.FloorElementType = FloorElementTypeEnum.OBSTACLE;
             }
         }
 
@@ -154,16 +155,16 @@ namespace Assets.Controllers
         {
             switch (floorElement.FloorElementType)
             {
-                case FloorElementType.NORMAL:
+                case FloorElementTypeEnum.NORMAL:
                     floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.NormalMaterial;
                     break;
-                case FloorElementType.OBSTACLE:
+                case FloorElementTypeEnum.OBSTACLE:
                     floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.ObstacleMaterial;
                     break;
-                case FloorElementType.START:
+                case FloorElementTypeEnum.START:
                     floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.StartMaterial;
                     break;
-                case FloorElementType.FINISH:
+                case FloorElementTypeEnum.FINISH:
                     floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.FinishMaterial;
                     break;
                 default:

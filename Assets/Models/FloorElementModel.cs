@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Enums;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Assets.Models
     public class FloorElementModel
     {
         public Vector3 Location;
-        public FloorElementType FloorElementType;
+        public FloorElementTypeEnum FloorElementType;
         public FloorElementModel(GameObject gameObject)
         {
             Location = gameObject.transform.localPosition;
