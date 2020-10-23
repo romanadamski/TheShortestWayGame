@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace Assets.Models
 {
+    [Serializable()]
     public class FloorElementModel
     {
         public Vector3 Location;

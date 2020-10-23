@@ -14,6 +14,7 @@ namespace Assets.ApplicationObjects
         public GameObject GameObject { get; set; }
         public Vector3 Location { get; set; }
         public FloorElementTypeEnum FloorElementType { get; set; }
+        public int Distance;
         public FloorElementObject(GameObject gameObject)
         {
             GameObject = gameObject;

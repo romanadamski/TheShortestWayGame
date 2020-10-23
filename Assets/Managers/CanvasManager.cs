@@ -69,7 +69,6 @@ namespace Assets.Managers
             dropdown.RefreshShownValue();
         }
         //todo algorytmy
-        //todo obiekt przeszkody wymiary
         //todo czasy
         private void getGameObjects()
         {
@@ -170,6 +169,7 @@ namespace Assets.Managers
             setButtonEnable(InputMapNameButton, true);
             setButtonEnable(FindShortestWayButton, true);
             setGameActive();
+            MainManager.CameraManager.SetDefaultCameraLocation(MainManager.MapController.ActiveMap);
         }
 
         private bool CheckInputFields(out string message)
@@ -210,6 +210,7 @@ namespace Assets.Managers
         public void LoadMapButton_OnClick()
         {
             loadMapToScene();
+            MainManager.CameraManager.SetDefaultCameraLocation(MainManager.MapController.ActiveMap);
         }
 
         private void loadMapToScene()

@@ -1,4 +1,5 @@
-﻿using Assets.Enums;
+﻿using Assets.ApplicationObjects;
+using Assets.Enums;
 using Assets.Managers;
 using Assets.Models;
 using System.Collections;
@@ -9,17 +10,23 @@ using UnityEngine.EventSystems;
 public class CameraManager : MonoBehaviour
 {
     float speed = 5;
-    float startCameraX;
-    float startCameraY;
-    float startCameraZ;
+    float startCameraLocationY;
+    float startCameraLocationZ;
+
+    float startCameraRotationX;
+    float startCameraRotationY;
+    float startCameraRotationZ;
     GameObject MainCamera;
     // Start is called before the first frame update
     void Start()
     {
         MainCamera = GameObject.Find("MainCamera");
-        startCameraX = MainCamera.transform.localPosition.x;
-        startCameraY = MainCamera.transform.localPosition.y;
-        startCameraZ = MainCamera.transform.localPosition.z;
+        startCameraLocationY = MainCamera.transform.localPosition.y;
+        startCameraLocationZ = MainCamera.transform.localPosition.z;
+
+        startCameraRotationX = MainCamera.transform.rotation.eulerAngles.x;
+        startCameraRotationY = MainCamera.transform.rotation.eulerAngles.y;
+        startCameraRotationZ = MainCamera.transform.rotation.eulerAngles.z;
     }
 
     // Update is called once per frame
@@ -44,8 +51,9 @@ public class CameraManager : MonoBehaviour
             }
         }
     }
-    public void SetDefaultCameraLocation()
+    public void SetDefaultCameraLocation(MapObject mapObject)
     {
-        MainCamera.transform.localPosition = new Vector3(startCameraX, startCameraY, startCameraZ);
+        MainCamera.transform.localPosition = new Vector3(mapObject.MapSize / 2, startCameraLocationY, mapObject.MapSize);
+        MainCamera.transform.localRotation = Quaternion.Euler(new Vector3(startCameraRotationX, startCameraRotationY, startCameraRotationZ));
     }
 }

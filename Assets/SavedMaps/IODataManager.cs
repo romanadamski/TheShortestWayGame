@@ -99,7 +99,6 @@ namespace Assets.SavedMaps
 				string fileName = string.Format("{0}.{1}", mapModel.Name, extension);
 				using(StreamWriter sw = new StreamWriter(fileName))
                 {
-					//todo podwojna tablica
 					string mapModelJson = JsonUtility.ToJson(mapModel);
 					sw.Write(mapModelJson);
 				}

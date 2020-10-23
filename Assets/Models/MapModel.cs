@@ -12,9 +12,9 @@ namespace Assets.Models
         public int MapSize;
         public int ObstacleCount;
         public string Name;
-        public FloorElementModel[,] FloorElements;
+        public List<FloorElementModel> FloorElements;
 
-        public MapModel(int mapSize, int obstacleCount, string name, FloorElementModel[,] floorElements)
+        public MapModel(int mapSize, int obstacleCount, string name, List<FloorElementModel> floorElements)
         {
             MapSize = mapSize;
             ObstacleCount = obstacleCount;
@@ -24,7 +24,7 @@ namespace Assets.Models
 
         public MapModel()
         {
-            FloorElements = new FloorElementModel[MapSize, MapSize];
+            FloorElements = new List<FloorElementModel>();
         }
     }
 }

@@ -16,15 +16,18 @@ namespace Assets.ApplicationObjects
             mapModel.MapSize = mapObject.MapSize;
             mapModel.ObstacleCount = mapObject.ObstacleCount;
             mapModel.Name = mapObject.Name;
-            mapModel.FloorElements = ConvertListFloorElementObjectToListFloorElementModel(mapObject.FloorElements, mapModel.MapSize);
+            mapModel.FloorElements = ConvertListFloorElementObjectToListFloorElementModel(mapObject.FloorElements);
 
             return mapModel;
         }
-        public static FloorElementModel[,] ConvertListFloorElementObjectToListFloorElementModel(FloorElementObject[,] floorElementObjects, int count)
+        public static List<FloorElementModel> ConvertListFloorElementObjectToListFloorElementModel(FloorElementObject[,] floorElementObjects)
         {
-            FloorElementModel[,] floorElementModels = new FloorElementModel[count, count];
+            List<FloorElementModel> floorElementModels = new List<FloorElementModel>();
+
             foreach (var floorElementObject in floorElementObjects)
-                floorElementModels[(int)floorElementObject.Location.x, (int)floorElementObject.Location.z] = ConvertFloorElementObjectToFloorElementModel(floorElementObject);
+            {
+                floorElementModels.Add(ConvertFloorElementObjectToFloorElementModel(floorElementObject));
+            }
 
             return floorElementModels;
         }
@@ -36,17 +39,18 @@ namespace Assets.ApplicationObjects
 
             return floorElementModel;
         }
-        public static MapObject ConvertMapModelToMapObject(MapModel mapObject)
+        public static MapObject ConvertMapModelToMapObject(MapModel mapModel)
         {
-            MapObject mapModel = new MapObject();
-            mapModel.MapSize = mapObject.MapSize;
-            mapModel.ObstacleCount = mapObject.ObstacleCount;
-            mapModel.Name = mapObject.Name;
-            mapModel.FloorElements = ConvertListFloorElementModelToListFloorElementObject(mapObject.FloorElements, mapModel.MapSize);
-
-            return mapModel;
+            MapObject mapObject = new MapObject();
+            mapObject.MapSize = mapModel.MapSize;
+            mapObject.ObstacleCount = mapModel.ObstacleCount;
+            mapObject.Name = mapModel.Name;
+            mapObject.FloorElements = ConvertListFloorElementModelToListFloorElementObject(mapModel.FloorElements, mapObject.MapSize);
+            mapObject.StartElement = ConvertFloorElementModelToFloorElementObject(mapModel.FloorElements.First(x => x.FloorElementType == Enums.FloorElementTypeEnum.START));
+            mapObject.FinishElement = ConvertFloorElementModelToFloorElementObject(mapModel.FloorElements.First(x => x.FloorElementType == Enums.FloorElementTypeEnum.FINISH));
+            return mapObject;
         }
-        public static FloorElementObject[,] ConvertListFloorElementModelToListFloorElementObject(FloorElementModel[,] floorElementModels, int count)
+        public static FloorElementObject[,] ConvertListFloorElementModelToListFloorElementObject(List<FloorElementModel> floorElementModels, int count)
         {
             FloorElementObject[,] floorElementObjects = new FloorElementObject[count, count];
             foreach (var floorElementModel in floorElementModels)
@@ -54,20 +58,20 @@ namespace Assets.ApplicationObjects
 
             return floorElementObjects;
         }
-        public static FloorElementObject ConvertFloorElementModelToFloorElementObject(FloorElementModel floorElementObject)
+        public static FloorElementObject ConvertFloorElementModelToFloorElementObject(FloorElementModel floorElementModel)
         {
-            FloorElementObject floorElementModel = new FloorElementObject();
-            floorElementModel.Location = floorElementObject.Location;
-            floorElementModel.FloorElementType = floorElementObject.FloorElementType;
-            return floorElementModel;
+            FloorElementObject floorElementObject = new FloorElementObject();
+            floorElementObject.Location = floorElementModel.Location;
+            floorElementObject.FloorElementType = floorElementModel.FloorElementType;
+            return floorElementObject;
         }
-        public static FloorElementObject ConvertFloorElementModelToFloorElementObject(FloorElementModel floorElementObject, GameObject gameObject)
+        public static FloorElementObject ConvertFloorElementModelToFloorElementObject(FloorElementModel floorElementModel, GameObject gameObject)
         {
-            FloorElementObject floorElementModel = new FloorElementObject();
-            floorElementModel.Location = floorElementObject.Location;
-            floorElementModel.FloorElementType = floorElementObject.FloorElementType;
-            floorElementModel.GameObject = gameObject;
-            return floorElementModel;
+            FloorElementObject floorElementObject = new FloorElementObject();
+            floorElementObject.Location = floorElementModel.Location;
+            floorElementObject.FloorElementType = floorElementModel.FloorElementType;
+            floorElementObject.GameObject = gameObject;
+            return floorElementObject;
         }
     }
 }

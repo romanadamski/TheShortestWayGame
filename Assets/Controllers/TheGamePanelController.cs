@@ -21,7 +21,7 @@ namespace Assets.Controllers
             {
                 clicked = 0;
                 clicktime = 0;
-                MainManager.CameraManager.SetDefaultCameraLocation();
+                MainManager.CameraManager.SetDefaultCameraLocation(MainManager.MapController.ActiveMap);
             }
             else if (clicked > 2 || Time.time - clicktime > 1) clicked = 0;
         }

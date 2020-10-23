@@ -23,7 +23,7 @@ namespace Assets.Controllers
         public List<MapObject> SavedMaps;
         GameObject Floor;
         System.Random Random;
-        FloorModel FloorModel;
+        FloorController FloorController;
         public MapController()
         {
             setObjects();
@@ -46,7 +46,7 @@ namespace Assets.Controllers
             ActiveMap = new MapObject();
             LoadedMap = new MapObject();
             Floor = GameObject.Find("Floor");
-            FloorModel = Floor.GetComponent<FloorModel>();
+            FloorController = Floor.GetComponent<FloorController>();
             SavedMaps = new List<MapObject>();
             GetSavedMaps();
             Random = new System.Random();
@@ -66,49 +66,39 @@ namespace Assets.Controllers
 
         public void GenerateMap()
         {
-            var startTime = DateTime.Now;
             clearFloorElements();
             addNewFloorToScene();
-            setStartAndFinish();
             addObstacles();
+            ActiveMap.GetFloorElementsNormal();
+            setStartAndFinish();
             setMaterialsAccordingToFloorType();
-            var totalTime = (DateTime.Now - startTime).TotalSeconds;
-            //EditorUtility.DisplayDialog("Czas wczytywania mapy", totalTime.ToString(), "OK");
         }
         public void GenerateLoadedMap()
         {
-            var startTime = DateTime.Now;
             clearFloorElements();
             ActiveMap = LoadedMap.Clone();
             loadFloorToScene();
             setMaterialsAccordingToFloorType();
-            var totalTime = (DateTime.Now - startTime).TotalSeconds;
-            //EditorUtility.DisplayDialog("Czas wczytywania mapy", totalTime.ToString(), "OK");
         }
         private void setMaterialsAccordingToFloorType()
         {
             foreach(var floorElement in ActiveMap.FloorElements)
             {
-                setMaterialAccordingToFloorType(floorElement);
+                SetMaterialAccordingToFloorType(floorElement);
             }
         }
 
         private void setStartAndFinish()
         {
-            ActiveMap.StartElement = ActiveMap.FloorElements[Random.Next(0, ActiveMap.MapSize), Random.Next(0, ActiveMap.MapSize)];
+            List<FloorElementObject> normalFloors = new List<FloorElementObject>();
+            normalFloors.AddRange(ActiveMap.FloorElementsNormal);
+            ActiveMap.StartElement = normalFloors[Random.Next(0, normalFloors.Count)];
             ActiveMap.StartElement.FloorElementType = FloorElementTypeEnum.START;
-            Vector3 endLocation = getRandomNumberWithoutRepeating(ActiveMap.StartElement.Location);
-            ActiveMap.EndElement = ActiveMap.FloorElements[(int)endLocation.x, (int)endLocation.z];
-            ActiveMap.EndElement.FloorElementType = FloorElementTypeEnum.FINISH;
+            normalFloors.Remove(ActiveMap.StartElement);
+            ActiveMap.FinishElement = normalFloors[Random.Next(0, normalFloors.Count)];
+            ActiveMap.FinishElement.FloorElementType = FloorElementTypeEnum.FINISH;
         }
-        Vector3 getRandomNumberWithoutRepeating(params Vector3 []occupiedLocations)
-        {
-            int x = Random.Next(0, ActiveMap.MapSize);
-            int z = Random.Next(0, ActiveMap.MapSize);
-            if (occupiedLocations.Where(item => item.x == x && item.z == z).Count() > 0)
-                getRandomNumberWithoutRepeating(occupiedLocations);
-            return new Vector3(x, 0, z);
-        }
+        
         private void clearFloorElements()
         {
             foreach (var floorElement in ActiveMap.FloorElements)
@@ -124,7 +114,7 @@ namespace Assets.Controllers
             {
                 for (int j = 0; j < ActiveMap.MapSize; j++)
                 {
-                    var prefabFloor = GameObject.Instantiate(FloorModel.FloorElement);
+                    var prefabFloor = GameObject.Instantiate(FloorController.FloorElement);
                     prefabFloor.transform.parent = Floor.transform;
                     prefabFloor.transform.localPosition = new Vector3(i, 0, j);
                     FloorElementObject floorElement = new FloorElementObject(prefabFloor);
@@ -137,7 +127,7 @@ namespace Assets.Controllers
         {
             foreach(var floorElement in ActiveMap.FloorElements)
             {
-                var prefabFloor = GameObject.Instantiate(FloorModel.FloorElement);
+                var prefabFloor = GameObject.Instantiate(FloorController.FloorElement);
                 prefabFloor.transform.parent = Floor.transform;
                 prefabFloor.transform.localPosition = floorElement.Location;
                 floorElement.GameObject = prefabFloor;
@@ -148,32 +138,49 @@ namespace Assets.Controllers
             for (int i = 0; i < ActiveMap.ObstacleCount; i++)
             {
                 int obstacleWidth = Random.Next(1, 3);
-                int obstacleheight = Random.Next(1, 3);
-                Vector3 obstacleLocation = getRandomNumberWithoutRepeating(ActiveMap.StartElement.Location, ActiveMap.EndElement.Location);
-
-                var floorElement = ActiveMap.FloorElements[(int)obstacleLocation.x, (int)obstacleLocation.z];
-                floorElement.FloorElementType = FloorElementTypeEnum.OBSTACLE;
+                int obstacleHeight = Random.Next(1, 3);
+                Vector3 obstacleLocation = new Vector3(Random.Next(0, ActiveMap.MapSize), 0, Random.Next(ActiveMap.MapSize));
+                ActiveMap.FloorElements[(int)obstacleLocation.x, (int)obstacleLocation.z].FloorElementType = FloorElementTypeEnum.OBSTACLE;
+                if(obstacleWidth == 2 
+                    && obstacleLocation.x < ActiveMap.MapSize - 1
+                )
+                {
+                    ActiveMap.FloorElements[(int)obstacleLocation.x + 1, (int)obstacleLocation.z].FloorElementType = FloorElementTypeEnum.OBSTACLE;
+                }
+                if (obstacleHeight == 2
+                    && obstacleLocation.z < ActiveMap.MapSize - 1
+                )
+                {
+                    ActiveMap.FloorElements[(int)obstacleLocation.x, (int)obstacleLocation.z + 1].FloorElementType = FloorElementTypeEnum.OBSTACLE;
+                }
+                if (obstacleHeight == 2
+                    && obstacleLocation.z < ActiveMap.MapSize - 1
+                    && obstacleWidth == 2
+                    && obstacleLocation.x < ActiveMap.MapSize - 1)
+                {
+                    ActiveMap.FloorElements[(int)obstacleLocation.x + 1, (int)obstacleLocation.z + 1].FloorElementType = FloorElementTypeEnum.OBSTACLE;
+                }
             }
         }
 
-        void setMaterialAccordingToFloorType(FloorElementObject floorElement)
+        public void SetMaterialAccordingToFloorType(FloorElementObject floorElement)
         {
             switch (floorElement.FloorElementType)
             {
                 case FloorElementTypeEnum.NORMAL:
-                    floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.NormalMaterial;
+                    floorElement.GameObject.GetComponent<Renderer>().material = FloorController.NormalMaterial;
                     break;
                 case FloorElementTypeEnum.OBSTACLE:
-                    floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.ObstacleMaterial;
+                    floorElement.GameObject.GetComponent<Renderer>().material = FloorController.ObstacleMaterial;
                     break;
                 case FloorElementTypeEnum.START:
-                    floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.StartMaterial;
+                    floorElement.GameObject.GetComponent<Renderer>().material = FloorController.StartMaterial;
                     break;
                 case FloorElementTypeEnum.FINISH:
-                    floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.FinishMaterial;
+                    floorElement.GameObject.GetComponent<Renderer>().material = FloorController.FinishMaterial;
                     break;
                 case FloorElementTypeEnum.PATH:
-                    floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.PathMaterial;
+                    floorElement.GameObject.GetComponent<Renderer>().material = FloorController.PathMaterial;
                     break;
                 default:
                     break;
