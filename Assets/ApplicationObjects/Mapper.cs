@@ -16,15 +16,15 @@ namespace Assets.ApplicationObjects
             mapModel.MapSize = mapObject.MapSize;
             mapModel.ObstacleCount = mapObject.ObstacleCount;
             mapModel.Name = mapObject.Name;
-            mapModel.FloorElements = ConvertListFloorElementObjectToListFloorElementModel(mapObject.FloorElements);
+            mapModel.FloorElements = ConvertListFloorElementObjectToListFloorElementModel(mapObject.FloorElements, mapModel.MapSize);
 
             return mapModel;
         }
-        public static List<FloorElementModel> ConvertListFloorElementObjectToListFloorElementModel(List<FloorElementObject> floorElementObjects)
+        public static FloorElementModel[,] ConvertListFloorElementObjectToListFloorElementModel(FloorElementObject[,] floorElementObjects, int count)
         {
-            List<FloorElementModel> floorElementModels = new List<FloorElementModel>();
-            foreach (var floorElementModel in floorElementObjects)
-                floorElementModels.Add(ConvertFloorElementObjectToFloorElementModel(floorElementModel));
+            FloorElementModel[,] floorElementModels = new FloorElementModel[count, count];
+            foreach (var floorElementObject in floorElementObjects)
+                floorElementModels[(int)floorElementObject.Location.x, (int)floorElementObject.Location.z] = ConvertFloorElementObjectToFloorElementModel(floorElementObject);
 
             return floorElementModels;
         }
@@ -42,17 +42,17 @@ namespace Assets.ApplicationObjects
             mapModel.MapSize = mapObject.MapSize;
             mapModel.ObstacleCount = mapObject.ObstacleCount;
             mapModel.Name = mapObject.Name;
-            mapModel.FloorElements = ConvertListFloorElementModelToListFloorElementObject(mapObject.FloorElements);
+            mapModel.FloorElements = ConvertListFloorElementModelToListFloorElementObject(mapObject.FloorElements, mapModel.MapSize);
 
             return mapModel;
         }
-        public static List<FloorElementObject> ConvertListFloorElementModelToListFloorElementObject(List<FloorElementModel> floorElementObjects)
+        public static FloorElementObject[,] ConvertListFloorElementModelToListFloorElementObject(FloorElementModel[,] floorElementModels, int count)
         {
-            List<FloorElementObject> floorElementModels = new List<FloorElementObject>();
-            foreach (var floorElementModel in floorElementObjects)
-                floorElementModels.Add(ConvertFloorElementModelToFloorElementObject(floorElementModel));
+            FloorElementObject[,] floorElementObjects = new FloorElementObject[count, count];
+            foreach (var floorElementModel in floorElementModels)
+                floorElementObjects[(int)floorElementModel.Location.x, (int)floorElementModel.Location.z] = ConvertFloorElementModelToFloorElementObject(floorElementModel);
 
-            return floorElementModels;
+            return floorElementObjects;
         }
         public static FloorElementObject ConvertFloorElementModelToFloorElementObject(FloorElementModel floorElementObject)
         {

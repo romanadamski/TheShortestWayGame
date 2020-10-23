@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Assets.Models;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +13,11 @@ namespace Assets.ApplicationObjects
         public int MapSize { get; set; }
         public int ObstacleCount { get; set; }
         public string Name { get; set; }
-        public List<FloorElementObject> FloorElements;
+        public FloorElementObject[,] FloorElements;
+        public FloorElementObject StartElement;
+        public FloorElementObject EndElement;
 
-        public MapObject(int mapSize, int obstacleCount, string name, List<FloorElementObject> floorElements)
+        public MapObject(int mapSize, int obstacleCount, string name, FloorElementObject[,] floorElements)
         {
             MapSize = mapSize;
             ObstacleCount = obstacleCount;
@@ -22,14 +26,18 @@ namespace Assets.ApplicationObjects
         }
         public MapObject()
         {
-            FloorElements = new List<FloorElementObject>();
+            FloorElements = new FloorElementObject[MapSize, MapSize];
         }
         public MapObject Clone()
         {
-            List<FloorElementObject> floorElementObjects = new List<FloorElementObject>();
-            foreach(var floorElement in FloorElements)
+            FloorElementObject[,] floorElementObjects = new FloorElementObject[MapSize, MapSize];
+            for(int i = 0; i < MapSize; i++)
             {
-                floorElementObjects.Add(floorElement.Clone());
+                for(int j = 0; j < MapSize; j++)
+                {
+                    floorElementObjects[i, j] = new FloorElementObject();
+                    floorElementObjects[i, j] = FloorElements[i, j].Clone();
+                }
             }
             return new MapObject(MapSize, ObstacleCount, Name, floorElementObjects);
         }

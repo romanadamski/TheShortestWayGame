@@ -11,6 +11,7 @@ namespace Assets.Enums
         NORMAL = 1,
         OBSTACLE = 2,
         START = 3,
-        FINISH = 4
+        FINISH = 4,
+        PATH = 5,
     }
 }

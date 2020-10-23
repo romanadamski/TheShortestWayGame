@@ -69,8 +69,8 @@ namespace Assets.Controllers
             var startTime = DateTime.Now;
             clearFloorElements();
             addNewFloorToScene();
-            addObstacles();
             setStartAndFinish();
+            addObstacles();
             setMaterialsAccordingToFloorType();
             var totalTime = (DateTime.Now - startTime).TotalSeconds;
             //EditorUtility.DisplayDialog("Czas wczytywania mapy", totalTime.ToString(), "OK");
@@ -95,21 +95,27 @@ namespace Assets.Controllers
 
         private void setStartAndFinish()
         {
-            List<FloorElementObject> normalFloorElements = ActiveMap.FloorElements.Where(x => x.FloorElementType == FloorElementTypeEnum.NORMAL).ToList();
-            FloorElementObject startElement = normalFloorElements[Random.Next(0, normalFloorElements.Count)];
-            startElement.FloorElementType = FloorElementTypeEnum.START;
-            normalFloorElements.Remove(startElement);
-            FloorElementObject endElement = normalFloorElements[Random.Next(0, normalFloorElements.Count)];
-            endElement.FloorElementType = FloorElementTypeEnum.FINISH;
+            ActiveMap.StartElement = ActiveMap.FloorElements[Random.Next(0, ActiveMap.MapSize), Random.Next(0, ActiveMap.MapSize)];
+            ActiveMap.StartElement.FloorElementType = FloorElementTypeEnum.START;
+            Vector3 endLocation = getRandomNumberWithoutRepeating(ActiveMap.StartElement.Location);
+            ActiveMap.EndElement = ActiveMap.FloorElements[(int)endLocation.x, (int)endLocation.z];
+            ActiveMap.EndElement.FloorElementType = FloorElementTypeEnum.FINISH;
         }
-
+        Vector3 getRandomNumberWithoutRepeating(params Vector3 []occupiedLocations)
+        {
+            int x = Random.Next(0, ActiveMap.MapSize);
+            int z = Random.Next(0, ActiveMap.MapSize);
+            if (occupiedLocations.Where(item => item.x == x && item.z == z).Count() > 0)
+                getRandomNumberWithoutRepeating(occupiedLocations);
+            return new Vector3(x, 0, z);
+        }
         private void clearFloorElements()
         {
             foreach (var floorElement in ActiveMap.FloorElements)
             {
                 GameObject.Destroy(floorElement.GameObject);
             }
-            ActiveMap.FloorElements.Clear();
+            ActiveMap.FloorElements = new FloorElementObject[ActiveMap.MapSize, ActiveMap.MapSize];
         }
 
         private void addNewFloorToScene()
@@ -123,7 +129,7 @@ namespace Assets.Controllers
                     prefabFloor.transform.localPosition = new Vector3(i, 0, j);
                     FloorElementObject floorElement = new FloorElementObject(prefabFloor);
                     floorElement.FloorElementType = FloorElementTypeEnum.NORMAL;
-                    ActiveMap.FloorElements.Add(floorElement);
+                    ActiveMap.FloorElements[i, j] = floorElement;
                 }
             }
         }
@@ -143,10 +149,9 @@ namespace Assets.Controllers
             {
                 int obstacleWidth = Random.Next(1, 3);
                 int obstacleheight = Random.Next(1, 3);
-                int obstacleX = Random.Next(0, ActiveMap.MapSize);
-                int obstacleZ = Random.Next(0, ActiveMap.MapSize);
+                Vector3 obstacleLocation = getRandomNumberWithoutRepeating(ActiveMap.StartElement.Location, ActiveMap.EndElement.Location);
 
-                var floorElement = ActiveMap.FloorElements.Find(x => x.GameObject.transform.localPosition == new Vector3(obstacleX, 0, obstacleZ));
+                var floorElement = ActiveMap.FloorElements[(int)obstacleLocation.x, (int)obstacleLocation.z];
                 floorElement.FloorElementType = FloorElementTypeEnum.OBSTACLE;
             }
         }
@@ -166,6 +171,9 @@ namespace Assets.Controllers
                     break;
                 case FloorElementTypeEnum.FINISH:
                     floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.FinishMaterial;
+                    break;
+                case FloorElementTypeEnum.PATH:
+                    floorElement.GameObject.GetComponent<Renderer>().material = FloorModel.PathMaterial;
                     break;
                 default:
                     break;

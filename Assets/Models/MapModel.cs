@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Assets.Models
 {
-    public class MapModel : ISerializable
+    public class MapModel
     {
         public int MapSize;
         public int ObstacleCount;
         public string Name;
-        public List<FloorElementModel> FloorElements;
+        public FloorElementModel[,] FloorElements;
 
-        public MapModel(int mapSize, int obstacleCount, string name, List<FloorElementModel> floorElements)
+        public MapModel(int mapSize, int obstacleCount, string name, FloorElementModel[,] floorElements)
         {
             MapSize = mapSize;
             ObstacleCount = obstacleCount;
@@ -22,24 +22,9 @@ namespace Assets.Models
             FloorElements = floorElements;
         }
 
-        public MapModel(SerializationInfo info, StreamingContext ctxt)
-        {
-            MapSize = (int)info.GetValue("MapSize", typeof(int));
-            ObstacleCount = (int)info.GetValue("ObstacleCount", typeof(int));
-            Name = (string)info.GetValue("Name", typeof(string));
-            FloorElements = (List<FloorElementModel>)info.GetValue("FloorElements", typeof(List<FloorElementModel>));
-        }
         public MapModel()
         {
-            FloorElements = new List<FloorElementModel>();
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("MapSize", MapSize);
-            info.AddValue("ObstacleCount", ObstacleCount);
-            info.AddValue("Name", Name);
-            info.AddValue("FloorElements", FloorElements);
+            FloorElements = new FloorElementModel[MapSize, MapSize];
         }
     }
 }

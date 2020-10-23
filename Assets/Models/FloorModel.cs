@@ -14,5 +14,6 @@ namespace Assets.Models
         public Material ObstacleMaterial;
         public Material StartMaterial;
         public Material FinishMaterial;
+        public Material PathMaterial;
     }
 }

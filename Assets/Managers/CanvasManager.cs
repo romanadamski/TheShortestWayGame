@@ -68,10 +68,9 @@ namespace Assets.Managers
             dropdown.value = index;
             dropdown.RefreshShownValue();
         }
-        //todo wybor algorytmow
+        //todo algorytmy
         //todo obiekt przeszkody wymiary
         //todo czasy
-        //todo instrukcja
         private void getGameObjects()
         {
             MapSizeInputField = GameObject.Find("MapSizeInputFieldTMP");
