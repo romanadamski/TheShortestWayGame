@@ -68,8 +68,7 @@ namespace Assets.Managers
             dropdown.value = index;
             dropdown.RefreshShownValue();
         }
-        //todo algorytmy
-        //todo czasy
+        //todo algorytm
         private void getGameObjects()
         {
             MapSizeInputField = GameObject.Find("MapSizeInputFieldTMP");
