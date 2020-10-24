@@ -249,6 +249,7 @@ namespace Assets.Managers
         public void FindShortestWayButton_OnClick()
         {
             MainManager.ExecuteAlgorithm();
+            setGameActive();
         }
         private bool checkMapName(string mapName, out string message)
         {
