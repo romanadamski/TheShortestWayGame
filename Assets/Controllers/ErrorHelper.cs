@@ -9,7 +9,7 @@ namespace Assets.Controllers
 {
     public static class ErrorHelper
     {
-        public static void ShowError(Exception exception)
+        public static void ShowIODataError(Exception exception)
         {
             string error = string.Format("{0}\n{1}",exception.Message, exception.InnerException?.Message);
             EditorUtility.DisplayDialog("Wystąpił błąd z zapisem / odczytem pliku", error, "OK");

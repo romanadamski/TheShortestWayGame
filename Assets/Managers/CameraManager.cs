@@ -53,7 +53,7 @@ public class CameraManager : MonoBehaviour
     }
     public void SetDefaultCameraLocation(MapObject mapObject)
     {
-        MainCamera.transform.localPosition = new Vector3(mapObject.MapSize / 2, startCameraLocationY, mapObject.MapSize);
+        MainCamera.transform.localPosition = new Vector3(mapObject.MapSize / 2, mapObject.MapSize * 0.6f, mapObject.MapSize);
         MainCamera.transform.localRotation = Quaternion.Euler(new Vector3(startCameraRotationX, startCameraRotationY, startCameraRotationZ));
     }
 }

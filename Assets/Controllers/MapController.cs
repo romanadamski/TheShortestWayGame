@@ -90,13 +90,20 @@ namespace Assets.Controllers
 
         private void setStartAndFinish()
         {
-            List<FloorElementObject> normalFloors = new List<FloorElementObject>();
-            normalFloors.AddRange(ActiveMap.FloorElementsNormal);
-            ActiveMap.StartElement = normalFloors[Random.Next(0, normalFloors.Count)];
-            ActiveMap.StartElement.FloorElementType = FloorElementTypeEnum.START;
-            normalFloors.Remove(ActiveMap.StartElement);
-            ActiveMap.FinishElement = normalFloors[Random.Next(0, normalFloors.Count)];
-            ActiveMap.FinishElement.FloorElementType = FloorElementTypeEnum.FINISH;
+            if(ActiveMap.FloorElementsNormal.Count < 2)
+            {
+                EditorUtility.DisplayDialog("Błąd tworzenia mapy", "Zbyt dużo przeszkód, utworzenie mapy nie jest możliwe.", "OK");
+            }
+            else
+            {
+                List<FloorElementObject> normalFloors = new List<FloorElementObject>();
+                normalFloors.AddRange(ActiveMap.FloorElementsNormal);
+                ActiveMap.StartElement = normalFloors[Random.Next(0, normalFloors.Count)];
+                ActiveMap.StartElement.FloorElementType = FloorElementTypeEnum.START;
+                normalFloors.Remove(ActiveMap.StartElement);
+                ActiveMap.FinishElement = normalFloors[Random.Next(0, normalFloors.Count)];
+                ActiveMap.FinishElement.FloorElementType = FloorElementTypeEnum.FINISH;
+            }
         }
         
         private void clearFloorElements()

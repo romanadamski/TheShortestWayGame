@@ -726,6 +726,12 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 776836218}
+    - target: {fileID: 5815257600637683754, guid: 5acbc9b0674924047a1f854980abaad5,
+        type: 3}
+      propertyPath: m_text
+      value: "Lewy przycisk myszy + ruch\nPrawy przycisk myszy + ruch\nScroll\nPodw\xF3jne
+        klikni\u0119cie"
+      objectReference: {fileID: 0}
     - target: {fileID: 5815257600678105852, guid: 5acbc9b0674924047a1f854980abaad5,
         type: 3}
       propertyPath: m_AnchorMin.x
@@ -801,6 +807,12 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 776836218}
+    - target: {fileID: 5815257601006625864, guid: 5acbc9b0674924047a1f854980abaad5,
+        type: 3}
+      propertyPath: m_text
+      value: "przesuwanie kamery na boki\nobr\xF3t kamery\nprzybli\u017Cenie / oddalenie
+        kamery\nDomy\u015Blna pozycja kamery"
+      objectReference: {fileID: 0}
     - target: {fileID: 5815257601086907042, guid: 5acbc9b0674924047a1f854980abaad5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target

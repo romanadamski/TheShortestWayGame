@@ -33,13 +33,16 @@ namespace Assets.Algorithms
                     floorDistances[i, j] = int.MaxValue;
                 }
             }
+            List<FloorElementObject> visitingElements = new List<FloorElementObject>();
+            visitingElements.AddRange(mapObject.FloorElementsNormal);
+            visitingElements.Add(mapObject.StartElement);
+            visitingElements.Add(mapObject.FinishElement);
+
             floorDistances[(int)mapObject.StartElement.Location.x, (int)mapObject.StartElement.Location.z] = 0;
-            for (int i = 1; i < mapObject.MapSize; i++)
+            for (int i = 1; i < visitingElements.Count; i++)
             {
-                foreach (var visitingElement in mapObject.FloorElements)
+                foreach (var visitingElement in visitingElements)
                 {
-                    if (visitingElement.FloorElementType == Enums.FloorElementTypeEnum.OBSTACLE)
-                        continue;
                     if ((int)visitingElement.Location.x - 1 >= 0
                        && mapObject.FloorElements[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
                        )

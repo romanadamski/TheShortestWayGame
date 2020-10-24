@@ -180,19 +180,27 @@ namespace Assets.Managers
         {
             message = "";
             bool result = true;
+            int mapSize = int.Parse(MapSizeInputField_InputField.text);
+            int obstacleCount = int.Parse(ObstaclesCountInputField_InputField.text);
+
             if (string.IsNullOrWhiteSpace(MapSizeInputField_InputField.text))
             {
                 message += "Proszę wprowadzić wielkość mapy.\n";
                 result = false;
             }
-            else if (int.Parse(MapSizeInputField_InputField.text) < 10)
+            else if (mapSize < 10)
             {
                 message += "Wielkość mapy musi być większa niż 10.\n";
                 result = false;
             }
             if (string.IsNullOrWhiteSpace(ObstaclesCountInputField_InputField.text))
             {
-                message += "Proszę wprowadzić ilość przeszkód.\n";
+                message += "Proszę wprowadzić liczbę przeszkód.\n";
+                result = false;
+            }
+            else if (obstacleCount > mapSize * mapSize)
+            {
+                message += "Zbyt duża liczba przeszkód.\n";
                 result = false;
             }
             return result;

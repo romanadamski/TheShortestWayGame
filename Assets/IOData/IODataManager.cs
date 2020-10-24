@@ -32,7 +32,7 @@ namespace Assets.IOData
 			}
 			catch (Exception e)
 			{
-				ErrorHelper.ShowError(e);
+				ErrorHelper.ShowIODataError(e);
 			}
 		}
 		public static List<string> GetMapsNames()
@@ -43,7 +43,7 @@ namespace Assets.IOData
 			}
 			catch (Exception e)
 			{
-				ErrorHelper.ShowError(e);
+				ErrorHelper.ShowIODataError(e);
 				return null;
 			}
 		}
@@ -62,7 +62,7 @@ namespace Assets.IOData
 			}
 			catch (Exception e)
 			{
-				ErrorHelper.ShowError(e);
+				ErrorHelper.ShowIODataError(e);
 			}
 		}
 		public static List<MapObject> LoadMapsByMapNames(List<string> mapNames)
@@ -90,7 +90,7 @@ namespace Assets.IOData
 			}
 			catch (Exception e)
             {
-				ErrorHelper.ShowError(e);
+				ErrorHelper.ShowIODataError(e);
 				return null;
 			}
 		}
@@ -108,7 +108,7 @@ namespace Assets.IOData
 			}
 			catch (Exception e)
 			{
-				ErrorHelper.ShowError(e);
+				ErrorHelper.ShowIODataError(e);
 			}
 		}
 	}
