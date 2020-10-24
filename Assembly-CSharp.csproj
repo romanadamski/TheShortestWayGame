@@ -69,6 +69,7 @@
     <Compile Include="Assets\ApplicationObjects\FloorElementObject.cs" />
     <Compile Include="Assets\ApplicationObjects\MapObject.cs" />
     <Compile Include="Assets\ApplicationObjects\Mapper.cs" />
+    <Compile Include="Assets\Controllers\ErrorHelper.cs" />
     <Compile Include="Assets\Controllers\FloorController.cs" />
     <Compile Include="Assets\Controllers\LinkController.cs" />
     <Compile Include="Assets\Controllers\MapController.cs" />
@@ -76,12 +77,12 @@
     <Compile Include="Assets\Enums\AlgothitmEnum.cs" />
     <Compile Include="Assets\Enums\FloorElementTypeEnum.cs" />
     <Compile Include="Assets\Enums\GameModeEnum.cs" />
+    <Compile Include="Assets\IOData\IODataManager.cs" />
     <Compile Include="Assets\Managers\CameraManager.cs" />
     <Compile Include="Assets\Managers\CanvasManager.cs" />
     <Compile Include="Assets\Managers\MainManager.cs" />
     <Compile Include="Assets\Models\FloorElementModel.cs" />
     <Compile Include="Assets\Models\MapModel.cs" />
-    <Compile Include="Assets\SavedMaps\IODataManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />

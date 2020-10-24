@@ -20,22 +20,21 @@ namespace Assets.Algorithms
             }
             else
             {
-                var a = predecessors[(int)mapObject.FinishElement.Location.x, (int)mapObject.FinishElement.Location.z];
                 DrawPath(mapObject.FinishElement, mapObject.FloorElements, predecessors);
             }
         }
         bool BellmanFordAlgorithm(MapObject mapObject, FloorElementObject[,] predecessors)
         {
-            int[,] dist = new int[mapObject.MapSize, mapObject.MapSize];
+            int[,] floorDistances = new int[mapObject.MapSize, mapObject.MapSize];
             for (int i = 0; i < mapObject.MapSize; ++i)
             {
                 for (int j = 0; j < mapObject.MapSize; ++j)
                 {
-                    dist[i, j] = int.MaxValue;
+                    floorDistances[i, j] = int.MaxValue;
                 }
             }
-            dist[(int)mapObject.StartElement.Location.x, (int)mapObject.StartElement.Location.z] = 0;
-            for (int k = 1; k < mapObject.MapSize; k++)
+            floorDistances[(int)mapObject.StartElement.Location.x, (int)mapObject.StartElement.Location.z] = 0;
+            for (int i = 1; i < mapObject.MapSize; i++)
             {
                 foreach (var visitingElement in mapObject.FloorElements)
                 {
@@ -45,10 +44,10 @@ namespace Assets.Algorithms
                        && mapObject.FloorElements[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
                        )
                     {
-                        if (dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z] != int.MaxValue
-                            && dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z] < dist[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z])
+                        if (floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z] != int.MaxValue
+                            && floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z] < floorDistances[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z])
                         {
-                            dist[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z] = dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
+                            floorDistances[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z] = floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
                             predecessors[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z] = mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
                         }
                     }
@@ -56,10 +55,10 @@ namespace Assets.Algorithms
                         && mapObject.FloorElements[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
                         )
                     {
-                        if (dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z] != int.MaxValue
-                           && dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z] < dist[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z])
+                        if (floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z] != int.MaxValue
+                           && floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z] < floorDistances[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z])
                         {
-                            dist[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z] = dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
+                            floorDistances[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z] = floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
                             predecessors[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z] = mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
                         }
                     }
@@ -67,10 +66,10 @@ namespace Assets.Algorithms
                         && mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
                         )
                     {
-                        if (dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z] != int.MaxValue
-                           && dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z] < dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1])
+                        if (floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z] != int.MaxValue
+                           && floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z] < floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1])
                         {
-                            dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1] = dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
+                            floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1] = floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
                             predecessors[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1] = mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
                         }
                     }
@@ -78,16 +77,15 @@ namespace Assets.Algorithms
                         && mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
                        )
                     {
-                        if (dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z] != int.MaxValue
-                           && dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z] < dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1])
+                        if (floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z] != int.MaxValue
+                           && floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z] < floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1])
                         {
-                            dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1] = dist[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
+                            floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1] = floorDistances[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
                             predecessors[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1] = mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z];
                         }
                     }
                 }
             }
-            //todo zly warunek
             if (predecessors[(int)mapObject.FinishElement.Location.x, (int)mapObject.FinishElement.Location.z] == null)
                 return false;
             return true;

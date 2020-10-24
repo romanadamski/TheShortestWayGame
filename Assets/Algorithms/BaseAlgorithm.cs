@@ -23,25 +23,20 @@ namespace Assets.Algorithms
         protected void DrawPath(FloorElementObject finishElement, FloorElementObject[,] floorElementObjects, FloorElementObject[,] predecessors)
         {
             ClearPath(floorElementObjects);
-            //todo test
-            var start = new FloorElementObject();
-            foreach (var a in floorElementObjects)
-            {
-                if (a.FloorElementType == Enums.FloorElementTypeEnum.START)
-                {
-                    start = a;
-                    break;
-                }
-            }
-            
             List<FloorElementObject> path = preparPath(finishElement, predecessors);
+            DrawPathOnScene(path);
+        }
+
+        private void DrawPathOnScene(List<FloorElementObject> path)
+        {
             foreach (var floorPath in path)
             {
                 floorPath.FloorElementType = Enums.FloorElementTypeEnum.PATH;
                 MainManager.MapController.SetMaterialAccordingToFloorType(floorPath);
             }
         }
-        protected void ClearPath(FloorElementObject[,] floorElementObjects)
+
+        private void ClearPath(FloorElementObject[,] floorElementObjects)
         {
             foreach (var floorElement in floorElementObjects)
             {

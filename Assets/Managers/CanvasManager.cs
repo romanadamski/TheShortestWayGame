@@ -1,6 +1,6 @@
 ﻿using Assets.ApplicationObjects;
 using Assets.Models;
-using Assets.SavedMaps;
+using Assets.IOData;
 using Packages.Rider.Editor.Util;
 using System;
 using System.Collections;
@@ -31,6 +31,8 @@ namespace Assets.Managers
         GameObject FindShortestWayButton;
         GameObject AlgorithmsDropdown;
         GameObject HelpPanel;
+        GameObject CloseMenuButton;
+
         TMP_InputField MapSizeInputField_InputField;
         TMP_InputField ObstaclesCountInputField_InputField;
         TMP_InputField MapNameInputField_InputField;
@@ -68,7 +70,6 @@ namespace Assets.Managers
             dropdown.value = index;
             dropdown.RefreshShownValue();
         }
-        //todo algorytm
         private void getGameObjects()
         {
             MapSizeInputField = GameObject.Find("MapSizeInputFieldTMP");
@@ -83,6 +84,7 @@ namespace Assets.Managers
             MapNameInputField = GameObject.Find("MapNameInputField");
             FindShortestWayButton = GameObject.Find("FindShortestWayButton");
             AlgorithmsDropdown = GameObject.Find("AlgorithmsDropdown");
+            CloseMenuButton = GameObject.Find("CloseMenuButton");
         }
 
         private void setObjects()
@@ -105,6 +107,8 @@ namespace Assets.Managers
             loadAlgorithmsToAlgorithimDropdown();
             setButtonEnable(InputMapNameButton, false);
             setButtonEnable(FindShortestWayButton, false);
+            setButtonEnable(FindShortestWayButton, false);
+            setButtonEnable(CloseMenuButton, false);
             MainManager.AlgothitmEnum = (AlgothitmEnum)AlgorithmsDropdown_Dropdown.value;
         }
 
@@ -167,6 +171,7 @@ namespace Assets.Managers
             MainManager.MapController.GenerateMap();
             setButtonEnable(InputMapNameButton, true);
             setButtonEnable(FindShortestWayButton, true);
+            setButtonEnable(CloseMenuButton, true);
             setGameActive();
             MainManager.CameraManager.SetDefaultCameraLocation(MainManager.MapController.ActiveMap);
         }
@@ -218,6 +223,7 @@ namespace Assets.Managers
             MainManager.MapController.GenerateLoadedMap();
             setButtonEnable(InputMapNameButton, true);
             setButtonEnable(FindShortestWayButton, true);
+            setButtonEnable(CloseMenuButton, true);
             setGameActive();
         }
         public void InputMapNameButton_OnClick()

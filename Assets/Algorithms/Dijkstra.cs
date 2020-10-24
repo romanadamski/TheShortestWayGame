@@ -14,7 +14,7 @@ namespace Assets.Algorithms
         public override void FindShortestPath(MapObject mapObject)
         {
             FloorElementObject[,] predecessors = new FloorElementObject[mapObject.MapSize, mapObject.MapSize];
-            if (!bfsAlgorithm(mapObject.FloorElements, mapObject.StartElement, mapObject.FinishElement, mapObject.MapSize, predecessors))
+            if (!dijkstraAlgorithm(mapObject, predecessors))
             {
                 CantFindPathShowMessage(mapObject.StartElement, mapObject.FinishElement);
             }
@@ -23,64 +23,63 @@ namespace Assets.Algorithms
                 DrawPath(mapObject.FinishElement, mapObject.FloorElements, predecessors);
             }
         }
-        
 
-        private bool bfsAlgorithm(FloorElementObject[,] floorElements, FloorElementObject startElement, FloorElementObject finishElement, int mapSize, FloorElementObject[,] predecessor)
+        private bool dijkstraAlgorithm(MapObject mapObject, FloorElementObject[,] predecessor)
         {
             List<FloorElementObject> floorElementsQueue = new List<FloorElementObject>();
-            bool[, ] visitedElements = new bool[mapSize, mapSize];
-            for (int i = 0; i < mapSize; i++)
+            bool[, ] visitedElements = new bool[mapObject.MapSize, mapObject.MapSize];
+            for (int i = 0; i < mapObject.MapSize; i++)
             {
-                for (int j = 0; j < mapSize; j++)
+                for (int j = 0; j < mapObject.MapSize; j++)
                 {
                     visitedElements[i, j] = false;
                 }
             }
-            visitedElements[(int)startElement.Location.x, (int)startElement.Location.z] = true;
-            floorElementsQueue.Add(startElement);
+            visitedElements[(int)mapObject.StartElement.Location.x, (int)mapObject.StartElement.Location.z] = true;
+            floorElementsQueue.Add(mapObject.StartElement);
 
             while (floorElementsQueue.Count != 0)
             {
                 FloorElementObject visitingElement = floorElementsQueue.First();
                 floorElementsQueue.RemoveAt(0);
 
-                if (floorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z].FloorElementType == Enums.FloorElementTypeEnum.FINISH)
+                if (mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z].FloorElementType == Enums.FloorElementTypeEnum.FINISH)
                 {
                     return true;
                 }
                 if ((int)visitingElement.Location.x - 1 >= 0
                     && visitedElements[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z] == false
-                    && floorElements[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
+                    && mapObject.FloorElements[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
                     )
                 {
-                    floorElementsQueue.Add(floorElements[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z]);
+                    floorElementsQueue.Add(mapObject.FloorElements[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z]);
                     visitedElements[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z] = true;
                     predecessor[(int)visitingElement.Location.x - 1, (int)visitingElement.Location.z] = visitingElement;
                 }
-                if ((int)visitingElement.Location.x + 1 < mapSize
+                if ((int)visitingElement.Location.x + 1 < mapObject.MapSize
                     && visitedElements[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z] == false
-                    && floorElements[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
+                    && mapObject.FloorElements[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
                     )
                 {
-                    floorElementsQueue.Add(floorElements[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z]);
+                    floorElementsQueue.Add(mapObject.FloorElements[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z]);
                     visitedElements[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z] = true;
                     predecessor[(int)visitingElement.Location.x + 1, (int)visitingElement.Location.z] = visitingElement;
                 }
                 if ((int)visitingElement.Location.z - 1 >= 0
                     && visitedElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1] == false
-                    && floorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
+                    && mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
                     )
                 {
-                    floorElementsQueue.Add(floorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1]);
+                    floorElementsQueue.Add(mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1]);
                     visitedElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1] = true;
                     predecessor[(int)visitingElement.Location.x, (int)visitingElement.Location.z - 1] = visitingElement;
                 }
-                if ((int)visitingElement.Location.z + 1 < mapSize
+                if ((int)visitingElement.Location.z + 1 < mapObject.MapSize
                    && visitedElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1] == false
-                    && floorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
+                    && mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1].FloorElementType != Enums.FloorElementTypeEnum.OBSTACLE
                    )
                 {
-                    floorElementsQueue.Add(floorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1]);
+                    floorElementsQueue.Add(mapObject.FloorElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1]);
                     visitedElements[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1] = true;
                     predecessor[(int)visitingElement.Location.x, (int)visitingElement.Location.z + 1] = visitingElement;
                 }
