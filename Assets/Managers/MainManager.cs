@@ -68,9 +68,9 @@ namespace Assets.Managers
                     break;
             }
         }
-        public static void ExecuteAlgorithm()
+        public static bool ExecuteAlgorithm()
         {
-            Algorithm.FindShortestPath(MapController.ActiveMap);
+            return Algorithm.FindShortestPath(MapController.ActiveMap);
         }
         private static BaseAlgorithm agorithm;
         public static BaseAlgorithm Algorithm
@@ -89,10 +89,10 @@ namespace Assets.Managers
         static MainManager()
         {
             Managers = GameObject.Find("Managers");
-            loadManagers();
+            LoadManagers();
         }
 
-        private static void loadManagers()
+        private static void LoadManagers()
         {
             CanvasManager = Managers.GetComponent<CanvasManager>();
             CameraManager = Managers.GetComponent<CameraManager>();

@@ -13,18 +13,19 @@ namespace Assets.Algorithms
 {
     public class BaseAlgorithm
     {
-        public virtual void FindShortestPath(MapObject mapObject)
+        public virtual bool FindShortestPath(MapObject mapObject)
         {
-
+            return false;
         }
+
         protected void CantFindPathShowMessage(FloorElementObject start, FloorElementObject finish)
         {
-            EditorUtility.DisplayDialog("Połączenie niemożliwe", string.Format("{0} {1} a {2}", "Nie da się utworzyć scieżki między", start.Location, finish.Location), "OK");
+            MainManager.CanvasManager.ShowMessage(string.Format("{0}\n({1}, {2}) a ({3}, {4})", "Nie da się utworzyć scieżki między", start.Location.x, start.Location.z, finish.Location.x, finish.Location.z));
         }
-        protected void DrawPath(FloorElementObject finishElement, FloorElementObject[,] floorElementObjects, FloorElementObject[,] predecessors)
+
+        protected void DrawPath(FloorElementObject finishElement, FloorElementObject[,] predecessors)
         {
-            ClearPath(floorElementObjects);
-            List<FloorElementObject> path = preparPath(finishElement, predecessors);
+            List<FloorElementObject> path = PreparPath(finishElement, predecessors);
             DrawPathOnScene(path);
         }
 
@@ -37,7 +38,7 @@ namespace Assets.Algorithms
             }
         }
 
-        private void ClearPath(FloorElementObject[,] floorElementObjects)
+        public void ClearPath(FloorElementObject[,] floorElementObjects)
         {
             foreach (var floorElement in floorElementObjects)
             {
@@ -48,7 +49,7 @@ namespace Assets.Algorithms
                 }
             }
         }
-        private List<FloorElementObject> preparPath(FloorElementObject finishElement, FloorElementObject[,] predecessors)
+        private List<FloorElementObject> PreparPath(FloorElementObject finishElement, FloorElementObject[,] predecessors)
         {
             List<FloorElementObject> path = new List<FloorElementObject>();
             FloorElementObject floor = finishElement;

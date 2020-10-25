@@ -11,20 +11,23 @@ namespace Assets.Algorithms
 {
     public class Dijkstra : BaseAlgorithm
     {
-        public override void FindShortestPath(MapObject mapObject)
+        public override bool FindShortestPath(MapObject mapObject)
         {
+            ClearPath(mapObject.FloorElements);
             FloorElementObject[,] predecessors = new FloorElementObject[mapObject.MapSize, mapObject.MapSize];
-            if (!dijkstraAlgorithm(mapObject, predecessors))
+            if (!DijkstraAlgorithm(mapObject, predecessors))
             {
                 CantFindPathShowMessage(mapObject.StartElement, mapObject.FinishElement);
+                return false;
             }
             else
             {
-                DrawPath(mapObject.FinishElement, mapObject.FloorElements, predecessors);
+                DrawPath(mapObject.FinishElement, predecessors);
+                return true;
             }
         }
 
-        private bool dijkstraAlgorithm(MapObject mapObject, FloorElementObject[,] predecessor)
+        private bool DijkstraAlgorithm(MapObject mapObject, FloorElementObject[,] predecessor)
         {
             List<FloorElementObject> floorElementsQueue = new List<FloorElementObject>();
             bool[, ] visitedElements = new bool[mapObject.MapSize, mapObject.MapSize];

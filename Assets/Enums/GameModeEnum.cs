@@ -12,5 +12,6 @@ namespace Assets.Enums
         THE_GAME = 2,
         MAP_SAVING = 3,
         HELP = 4,
+        MESSAGE_PANEL = 5,
     }
 }

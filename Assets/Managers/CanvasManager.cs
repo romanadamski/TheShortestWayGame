@@ -1,7 +1,6 @@
 ﻿using Assets.ApplicationObjects;
 using Assets.Models;
 using Assets.IOData;
-using Packages.Rider.Editor.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,45 +31,60 @@ namespace Assets.Managers
         GameObject AlgorithmsDropdown;
         GameObject HelpPanel;
         GameObject CloseMenuButton;
+        GameObject ClearPathButton;
+        GameObject MessagePanel;
 
         TMP_InputField MapSizeInputField_InputField;
         TMP_InputField ObstaclesCountInputField_InputField;
         TMP_InputField MapNameInputField_InputField;
         TMP_Dropdown SavedMapsDropdown_Dropdown;
         TMP_Dropdown AlgorithmsDropdown_Dropdown;
+        TextMeshProUGUI MessagePanel_MessageText;
+        private void Awake()
+        {
+            GetGameObjects();
+            SetMenuActive();
+            SetObjects();
+        }
         // Start is called before the first frame update
         void Start()
         {
-            getGameObjects();
-            setObjects();
-            setMenuActive();
-            checkLoadedMaps();
-            setDropdownDefaultValues();
+            CheckLoadedMaps();
+            SetDropdownDefaultValues();
         }
-
-        private void setDropdownDefaultValues()
+        public void ShowMessage(string message)
         {
-            setDropdownValue(SavedMapsDropdown_Dropdown, 0);
-            setDropdownValue(AlgorithmsDropdown_Dropdown, 0);
+            SetMessagePanelActive();
+            MessagePanel_MessageText.text = message;
+        }
+        public void CloseMessagePanelButton_OnClick()
+        {
+            MessagePanel_MessageText.text = "";
+            MessagePanel.SetActive(false);
+        }
+        private void SetDropdownDefaultValues()
+        {
+            SetDropdownValue(SavedMapsDropdown_Dropdown, 0);
+            SetDropdownValue(AlgorithmsDropdown_Dropdown, 0);
         }
 
-        private void checkLoadedMaps()
+        private void CheckLoadedMaps()
         {
             if (SavedMapsDropdown_Dropdown.options.Count == 0)
             {
-                setButtonEnable(LoadMapButton, false);
+                SetButtonEnable(LoadMapButton, false);
             }
             else
             {
-                loadMapToObject(SavedMapsDropdown_Dropdown.options[SavedMapsDropdown_Dropdown.value].text);
+                LoadMapToObject(SavedMapsDropdown_Dropdown.options[SavedMapsDropdown_Dropdown.value].text);
             }
         }
-        void setDropdownValue(TMP_Dropdown dropdown, int index)
+        void SetDropdownValue(TMP_Dropdown dropdown, int index)
         {
             dropdown.value = index;
             dropdown.RefreshShownValue();
         }
-        private void getGameObjects()
+        private void GetGameObjects()
         {
             MapSizeInputField = GameObject.Find("MapSizeInputFieldTMP");
             ObstaclesCountInputField = GameObject.Find("ObstaclesCountInputFieldTMP");
@@ -85,16 +99,19 @@ namespace Assets.Managers
             FindShortestWayButton = GameObject.Find("FindShortestWayButton");
             AlgorithmsDropdown = GameObject.Find("AlgorithmsDropdown");
             CloseMenuButton = GameObject.Find("CloseMenuButton");
+            ClearPathButton = GameObject.Find("ClearPathButton");
+            MessagePanel = GameObject.Find("MessagePanel");
         }
 
-        private void setObjects()
+        private void SetObjects()
         {
-            MainManager.MapController = new MapController();
             MapSizeInputField_InputField = MapSizeInputField.GetComponent<TMP_InputField>();
             ObstaclesCountInputField_InputField = ObstaclesCountInputField.GetComponent<TMP_InputField>();
             MapNameInputField_InputField = MapNameInputField.GetComponent<TMP_InputField>();
             SavedMapsDropdown_Dropdown = SavedMapsDropdown.GetComponent<TMP_Dropdown>();
             AlgorithmsDropdown_Dropdown = AlgorithmsDropdown.GetComponent<TMP_Dropdown>();
+            MessagePanel_MessageText = MessagePanel.GetComponentInChildren<TextMeshProUGUI>();
+            MainManager.MapController = new MapController();
             SavedMapsDropdown_Dropdown.onValueChanged.AddListener(delegate
             {
                 SavedMapsDropdown_OnValueChanged(SavedMapsDropdown_Dropdown);
@@ -103,16 +120,16 @@ namespace Assets.Managers
             {
                 AlgorithmsDropdown_OnValueChanged(AlgorithmsDropdown_Dropdown);
             });
-            loadMapsToMapDropdown();
-            loadAlgorithmsToAlgorithimDropdown();
-            setButtonEnable(InputMapNameButton, false);
-            setButtonEnable(FindShortestWayButton, false);
-            setButtonEnable(FindShortestWayButton, false);
-            setButtonEnable(CloseMenuButton, false);
+            LoadMapsToMapDropdown();
+            LoadAlgorithmsToAlgorithimDropdown();
+            SetButtonEnable(InputMapNameButton, false);
+            SetButtonEnable(FindShortestWayButton, false);
+            SetButtonEnable(ClearPathButton, false);
+            SetButtonEnable(CloseMenuButton, false);
             MainManager.AlgothitmEnum = (AlgothitmEnum)AlgorithmsDropdown_Dropdown.value;
         }
 
-        private void loadAlgorithmsToAlgorithimDropdown()
+        private void LoadAlgorithmsToAlgorithimDropdown()
         {
             AlgorithmsDropdown_Dropdown.options.Add(new TMP_Dropdown.OptionData(AlgothitmEnum.DIJKSTRA.ToString()));
             AlgorithmsDropdown_Dropdown.options.Add(new TMP_Dropdown.OptionData(AlgothitmEnum.BELLMAN_FORD.ToString()));
@@ -123,7 +140,7 @@ namespace Assets.Managers
             MainManager.AlgothitmEnum = (AlgothitmEnum)algorithmsDropdown_Dropdown.value;
         }
 
-        private void loadMapsToMapDropdown()
+        private void LoadMapsToMapDropdown()
         {
             foreach(var map in MainManager.MapController.SavedMaps)
             {
@@ -133,17 +150,17 @@ namespace Assets.Managers
         }
         void SavedMapsDropdown_OnValueChanged(TMP_Dropdown change)
         {
-            loadMapToObject(change.options[change.value].text);
+            LoadMapToObject(change.options[change.value].text);
         }
 
-        private void loadMapToObject(string mapName)
+        private void LoadMapToObject(string mapName)
         {
             MainManager.MapController.LoadMapByName(mapName);
             MapSizeInputField_InputField.text = MainManager.MapController.LoadedMap.MapSize.ToString();
             ObstaclesCountInputField_InputField.text = MainManager.MapController.LoadedMap.ObstacleCount.ToString();
         }
 
-        private void setButtonEnable(GameObject button, bool active)
+        private void SetButtonEnable(GameObject button, bool active)
         {
             button.GetComponent<Button>().enabled = active;
             if(active)
@@ -162,17 +179,18 @@ namespace Assets.Managers
             string message;
             if (!CheckInputFields(out message))
             {
-                EditorUtility.DisplayDialog("Błąd wczytywania mapy", message, "OK");
+                ShowMessage(message);
                 return;
             }
 
             MainManager.MapController.ActiveMap.MapSize = int.Parse(MapSizeInputField_InputField.text);
             MainManager.MapController.ActiveMap.ObstacleCount = int.Parse(ObstaclesCountInputField_InputField.text);
             MainManager.MapController.GenerateMap();
-            setButtonEnable(InputMapNameButton, true);
-            setButtonEnable(FindShortestWayButton, true);
-            setButtonEnable(CloseMenuButton, true);
-            setGameActive();
+            SetButtonEnable(InputMapNameButton, true);
+            SetButtonEnable(FindShortestWayButton, true);
+            SetButtonEnable(CloseMenuButton, true);
+            SetButtonEnable(ClearPathButton, false);
+            SetGameActive();
             MainManager.CameraManager.SetDefaultCameraLocation(MainManager.MapController.ActiveMap);
         }
 
@@ -180,8 +198,10 @@ namespace Assets.Managers
         {
             message = "";
             bool result = true;
-            int mapSize = int.Parse(MapSizeInputField_InputField.text);
-            int obstacleCount = int.Parse(ObstaclesCountInputField_InputField.text);
+            int mapSize = 0;
+            int obstacleCount = 0;
+            int.TryParse(MapSizeInputField_InputField.text, out mapSize);
+            int.TryParse(ObstaclesCountInputField_InputField.text, out obstacleCount);
 
             if (string.IsNullOrWhiteSpace(MapSizeInputField_InputField.text))
             {
@@ -198,9 +218,9 @@ namespace Assets.Managers
                 message += "Proszę wprowadzić liczbę przeszkód.\n";
                 result = false;
             }
-            else if (obstacleCount > mapSize * mapSize)
+            else if (!string.IsNullOrWhiteSpace(MapSizeInputField_InputField.text) && obstacleCount > mapSize * mapSize)
             {
-                message += "Zbyt duża liczba przeszkód.\n";
+                message += "Zbyt duża liczba przeszkód w porównaniu do wielkości mapy.\n";
                 result = false;
             }
             return result;
@@ -208,58 +228,66 @@ namespace Assets.Managers
 
         public void MenuButton_OnClick()
         {
-            setMenuActive();
+            SetMenuActive();
         }
         public void CloseMenu_OnClick()
         {
-            setGameActive();
+            SetGameActive();
         }
         public void CloseInputMapNameButton_OnClick()
         {
             MapNameInputField_InputField.text = "";
-            setMenuActive();
+            SetMenuActive();
         }
         public void LoadMapButton_OnClick()
         {
-            loadMapToScene();
+            LoadMapToScene();
             MainManager.CameraManager.SetDefaultCameraLocation(MainManager.MapController.ActiveMap);
         }
 
-        private void loadMapToScene()
+        private void LoadMapToScene()
         {
-            loadMapToObject(SavedMapsDropdown_Dropdown.options[SavedMapsDropdown_Dropdown.value].text);
+            LoadMapToObject(SavedMapsDropdown_Dropdown.options[SavedMapsDropdown_Dropdown.value].text);
             MainManager.MapController.GenerateLoadedMap();
-            setButtonEnable(InputMapNameButton, true);
-            setButtonEnable(FindShortestWayButton, true);
-            setButtonEnable(CloseMenuButton, true);
-            setGameActive();
+            SetButtonEnable(InputMapNameButton, true);
+            SetButtonEnable(FindShortestWayButton, true);
+            SetButtonEnable(CloseMenuButton, true);
+            if (MainManager.MapController.IsPathFound)
+                SetButtonEnable(ClearPathButton, true);
+            else
+                SetButtonEnable(ClearPathButton, false);
+            SetGameActive();
         }
         public void InputMapNameButton_OnClick()
         {
-            setInputMapNameActive();
+            SetInputMapNameActive();
         }
         public void SaveMapButton_OnClick()
         {
             string message;
-            if(!checkMapName(MapNameInputField_InputField.text, out message))
+            if(!CheckMapName(MapNameInputField_InputField.text, out message))
             {
-                EditorUtility.DisplayDialog("Błąd zapisywania mapy", message, "OK");
+                ShowMessage( message);
                 return;
             }
             MapObject savedMap = MainManager.MapController.ActiveMap.Clone();
             savedMap.Name = MapNameInputField_InputField.text;
-            saveMap(savedMap);
+            SaveMap(savedMap);
             MapNameInputField_InputField.text = "";
-            setMenuActive();
-            setMenuAfterSave(savedMap);
-            EditorUtility.DisplayDialog("Zapisano mapę", string.Format("{0} {1}", "Mapa zapisana poprawnie pod nazwą", savedMap.Name), "OK");
+            SetMenuActive();
+            SetMenuAfterSave(savedMap);
+            ShowMessage(string.Format("{0} {1}", "Mapa zapisana poprawnie pod nazwą", savedMap.Name));
         }
         public void FindShortestWayButton_OnClick()
         {
-            MainManager.ExecuteAlgorithm();
-            setGameActive();
+            bool isPathFound = MainManager.ExecuteAlgorithm();
+            if (isPathFound)
+            {
+                SetButtonEnable(ClearPathButton, true);
+                SetGameActive();
+            }
         }
-        private bool checkMapName(string mapName, out string message)
+        private bool CheckMapName(string mapName, out string message)
         {
             bool result = true;
             message = "";
@@ -273,67 +301,80 @@ namespace Assets.Managers
                 message = "Nazwa mapy zawiera niedozwolone znaki.";
                 result = false;
             }
-            else if (MainManager.MapController.SavedMaps.Any(x => x.Name == mapName))
+            else if (MainManager.MapController.SavedMaps.Find(x => x?.Name == mapName) != null)
             {
                 message = "Istnieje już mapa o takiej nazwie.";
                 result = false;
             }
             return result;
         }
-
-        private void saveMap(MapObject activeMap)
+        public void ClearPath_OnClick()
+        {
+            MainManager.Algorithm.ClearPath(MainManager.MapController.ActiveMap.FloorElements);
+            SetButtonEnable(ClearPathButton, false);
+        }
+        private void SaveMap(MapObject activeMap)
         {
             IODataManager.Save(activeMap);
             IODataManager.SaveMapName(activeMap.Name);
             MainManager.MapController.SavedMaps.Add(activeMap);
         }
 
-        private void setMenuAfterSave(MapObject activeMap)
+        private void SetMenuAfterSave(MapObject activeMap)
         {
             SavedMapsDropdown_Dropdown.options.Add(new TMP_Dropdown.OptionData(activeMap.Name));
-            setButtonEnable(LoadMapButton, true);
-            setDropdownValue(SavedMapsDropdown_Dropdown, SavedMapsDropdown_Dropdown.options.Count - 1);
+            SetButtonEnable(LoadMapButton, true);
+            SetDropdownValue(SavedMapsDropdown_Dropdown, SavedMapsDropdown_Dropdown.options.Count - 1);
         }
 
-        void setMenuActive()
+        void SetMenuActive()
         {
             MainMenuPanel.SetActive(true);
             TheGamePanel.SetActive(false);
             InputMapNamePanel.SetActive(false);
             HelpPanel.SetActive(false);
+            MessagePanel.SetActive(false);
             MainManager.GameMode = GameModeEnum.MAIN_MENU;
         }
-        void setGameActive()
+        void SetGameActive()
         {
             MainMenuPanel.SetActive(false);
             TheGamePanel.SetActive(true);
             InputMapNamePanel.SetActive(false);
             HelpPanel.SetActive(false);
+            MessagePanel.SetActive(false);
             MainManager.GameMode = GameModeEnum.THE_GAME;
         }
-        void setInputMapNameActive()
+        void SetInputMapNameActive()
         {
             MainMenuPanel.SetActive(false);
             TheGamePanel.SetActive(false);
             InputMapNamePanel.SetActive(true);
             HelpPanel.SetActive(false);
+            MessagePanel.SetActive(false);
             MainManager.GameMode = GameModeEnum.MAP_SAVING;
         }
-        void setHelpActive()
+        void SetHelpActive()
         {
             MainMenuPanel.SetActive(false);
             TheGamePanel.SetActive(false);
             InputMapNamePanel.SetActive(false);
             HelpPanel.SetActive(true);
+            MessagePanel.SetActive(false);
             MainManager.GameMode = GameModeEnum.HELP;
+        }
+        void SetMessagePanelActive()
+        {
+            MessagePanel.SetActive(true);
+            MainManager.GameMode = GameModeEnum.MESSAGE_PANEL;
         }
         public void ShowHelpPanel_OnClick()
         {
-            setHelpActive();
+            SetHelpActive();
         }
         public void CloseHelp_OnClick()
         {
-            setMenuActive();
+            SetMenuActive();
         }
     }
 }

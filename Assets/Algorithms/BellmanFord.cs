@@ -11,16 +11,19 @@ namespace Assets.Algorithms
 {
     public class BellmanFord : BaseAlgorithm
     {
-        public override void FindShortestPath(MapObject mapObject)
+        public override bool FindShortestPath(MapObject mapObject)
         {
+            ClearPath(mapObject.FloorElements);
             FloorElementObject[,] predecessors = new FloorElementObject[mapObject.MapSize, mapObject.MapSize];
             if (!BellmanFordAlgorithm(mapObject, predecessors))
             {
                 CantFindPathShowMessage(mapObject.StartElement, mapObject.FinishElement);
+                return false;
             }
             else
             {
-                DrawPath(mapObject.FinishElement, mapObject.FloorElements, predecessors);
+                DrawPath(mapObject.FinishElement, predecessors);
+                return true;
             }
         }
         bool BellmanFordAlgorithm(MapObject mapObject, FloorElementObject[,] predecessors)
@@ -33,13 +36,18 @@ namespace Assets.Algorithms
                     floorDistances[i, j] = int.MaxValue;
                 }
             }
+            floorDistances[(int)mapObject.StartElement.Location.x, (int)mapObject.StartElement.Location.z] = 0;
+
             List<FloorElementObject> visitingElements = new List<FloorElementObject>();
-            visitingElements.AddRange(mapObject.FloorElementsNormal);
+            mapObject.GetFloorElementsNormal();
+            foreach (var floorElement in mapObject.FloorElementsNormal)
+            {
+                visitingElements.Add(floorElement);
+            }
             visitingElements.Add(mapObject.StartElement);
             visitingElements.Add(mapObject.FinishElement);
 
-            floorDistances[(int)mapObject.StartElement.Location.x, (int)mapObject.StartElement.Location.z] = 0;
-            for (int i = 1; i < visitingElements.Count; i++)
+            for (int i = 0; i < visitingElements.Count; i++)
             {
                 foreach (var visitingElement in visitingElements)
                 {

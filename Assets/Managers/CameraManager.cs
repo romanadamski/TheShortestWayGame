@@ -10,8 +10,6 @@ using UnityEngine.EventSystems;
 public class CameraManager : MonoBehaviour
 {
     float speed = 5;
-    float startCameraLocationY;
-    float startCameraLocationZ;
 
     float startCameraRotationX;
     float startCameraRotationY;
@@ -21,8 +19,6 @@ public class CameraManager : MonoBehaviour
     void Start()
     {
         MainCamera = GameObject.Find("MainCamera");
-        startCameraLocationY = MainCamera.transform.localPosition.y;
-        startCameraLocationZ = MainCamera.transform.localPosition.z;
 
         startCameraRotationX = MainCamera.transform.rotation.eulerAngles.x;
         startCameraRotationY = MainCamera.transform.rotation.eulerAngles.y;

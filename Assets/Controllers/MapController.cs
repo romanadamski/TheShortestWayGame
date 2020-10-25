@@ -10,9 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditor.PackageManager.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Assets.Managers;
 
 namespace Assets.Controllers
 {
@@ -24,24 +24,25 @@ namespace Assets.Controllers
         GameObject Floor;
         System.Random Random;
         FloorController FloorController;
+        public bool IsPathFound = false;
         public MapController()
         {
-            setObjects();
-            prepareMap();
+            SetObjects();
+            PrepareMap();
         }
         public void LoadMapByName(string mapName)
         {
-            prepareMap(mapName);
+            PrepareMap(mapName);
         }
-        void prepareMap(string mapName = null)
+        void PrepareMap(string mapName = null)
         {
             if (mapName == null)
                 ActiveMap = new MapObject();
             else
-                LoadedMap = SavedMaps.Find(x => x.Name == mapName).Clone();
+                LoadedMap = SavedMaps.Find(x => x?.Name == mapName).Clone();
         }
 
-        private void setObjects()
+        private void SetObjects()
         {
             ActiveMap = new MapObject();
             LoadedMap = new MapObject();
@@ -54,33 +55,35 @@ namespace Assets.Controllers
 
         public void GetSavedMaps()
         {
-            makeMainMapFile();
+            MakeMainMapFile();
             List<string> mapList = IODataManager.GetMapsNames();
             SavedMaps = IODataManager.LoadMapsByMapNames(mapList);
         }
 
-        private void makeMainMapFile()
+        private void MakeMainMapFile()
         {
             IODataManager.CreateMainFile();
         }
 
         public void GenerateMap()
         {
-            clearFloorElements();
-            addNewFloorToScene();
-            addObstacles();
+            IsPathFound = false;
+            ClearFloorElements();
+            AddNewFloorToScene();
+            AddObstacles();
             ActiveMap.GetFloorElementsNormal();
-            setStartAndFinish();
-            setMaterialsAccordingToFloorType();
+            SetStartAndFinish();
+            SetMaterialsAccordingToFloorType();
         }
         public void GenerateLoadedMap()
         {
-            clearFloorElements();
+            IsPathFound = false;
+            ClearFloorElements();
             ActiveMap = LoadedMap.Clone();
-            loadFloorToScene();
-            setMaterialsAccordingToFloorType();
+            LoadFloorToScene();
+            SetMaterialsAccordingToFloorType();
         }
-        private void setMaterialsAccordingToFloorType()
+        private void SetMaterialsAccordingToFloorType()
         {
             foreach(var floorElement in ActiveMap.FloorElements)
             {
@@ -88,11 +91,11 @@ namespace Assets.Controllers
             }
         }
 
-        private void setStartAndFinish()
+        private void SetStartAndFinish()
         {
             if(ActiveMap.FloorElementsNormal.Count < 2)
             {
-                EditorUtility.DisplayDialog("Błąd tworzenia mapy", "Zbyt dużo przeszkód, utworzenie mapy nie jest możliwe.", "OK");
+                MainManager.CanvasManager.ShowMessage("Zbyt dużo przeszkód, utworzenie mapy nie jest możliwe.");
             }
             else
             {
@@ -106,7 +109,7 @@ namespace Assets.Controllers
             }
         }
         
-        private void clearFloorElements()
+        private void ClearFloorElements()
         {
             foreach (var floorElement in ActiveMap.FloorElements)
             {
@@ -115,7 +118,7 @@ namespace Assets.Controllers
             ActiveMap.FloorElements = new FloorElementObject[ActiveMap.MapSize, ActiveMap.MapSize];
         }
 
-        private void addNewFloorToScene()
+        private void AddNewFloorToScene()
         {
             for (int i = 0; i < ActiveMap.MapSize; i++)
             {
@@ -130,7 +133,7 @@ namespace Assets.Controllers
                 }
             }
         }
-        private void loadFloorToScene()
+        private void LoadFloorToScene()
         {
             foreach(var floorElement in ActiveMap.FloorElements)
             {
@@ -138,9 +141,11 @@ namespace Assets.Controllers
                 prefabFloor.transform.parent = Floor.transform;
                 prefabFloor.transform.localPosition = floorElement.Location;
                 floorElement.GameObject = prefabFloor;
+                if(floorElement.FloorElementType == FloorElementTypeEnum.PATH)
+                    IsPathFound = true;
             }
         }
-        private void addObstacles()
+        private void AddObstacles()
         {
             for (int i = 0; i < ActiveMap.ObstacleCount; i++)
             {
