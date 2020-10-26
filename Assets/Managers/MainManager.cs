@@ -96,6 +96,7 @@ namespace Assets.Managers
         {
             CanvasManager = Managers.GetComponent<CanvasManager>();
             CameraManager = Managers.GetComponent<CameraManager>();
+            MapController = new MapController();
         }
     }
 }

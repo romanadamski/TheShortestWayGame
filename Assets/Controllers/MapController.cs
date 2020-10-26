@@ -49,7 +49,6 @@ namespace Assets.Controllers
             Floor = GameObject.Find("Floor");
             FloorController = Floor.GetComponent<FloorController>();
             SavedMaps = new List<MapObject>();
-            GetSavedMaps();
             Random = new System.Random();
         }
 

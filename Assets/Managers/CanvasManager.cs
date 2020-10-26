@@ -13,6 +13,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using Assets.Controllers;
 using Assets.Enums;
+using UnityEngine.EventSystems;
 
 namespace Assets.Managers
 {
@@ -111,7 +112,6 @@ namespace Assets.Managers
             SavedMapsDropdown_Dropdown = SavedMapsDropdown.GetComponent<TMP_Dropdown>();
             AlgorithmsDropdown_Dropdown = AlgorithmsDropdown.GetComponent<TMP_Dropdown>();
             MessagePanel_MessageText = MessagePanel.GetComponentInChildren<TextMeshProUGUI>();
-            MainManager.MapController = new MapController();
             SavedMapsDropdown_Dropdown.onValueChanged.AddListener(delegate
             {
                 SavedMapsDropdown_OnValueChanged(SavedMapsDropdown_Dropdown);
@@ -142,7 +142,8 @@ namespace Assets.Managers
 
         private void LoadMapsToMapDropdown()
         {
-            foreach(var map in MainManager.MapController.SavedMaps)
+            MainManager.MapController.GetSavedMaps();
+            foreach (var map in MainManager.MapController.SavedMaps)
             {
                 if(map != null)
                     SavedMapsDropdown_Dropdown.options.Add(new TMP_Dropdown.OptionData(map.Name));
@@ -162,11 +163,12 @@ namespace Assets.Managers
 
         private void SetButtonEnable(GameObject button, bool active)
         {
+            var TMP_Text = button.GetComponentInChildren<TMP_Text>();
             button.GetComponent<Button>().enabled = active;
-            if(active)
-                button.GetComponentInChildren<TMP_Text>().color = new Color(0, 0, 0, 1);
+            if (active)
+                TMP_Text.color = new Color(TMP_Text.color.r, TMP_Text.color.g, TMP_Text.color.b, 1);
             else
-                button.GetComponentInChildren<TMP_Text>().color = new Color(0, 0, 0, 0.3f);
+                TMP_Text.color = new Color(TMP_Text.color.r, TMP_Text.color.g, TMP_Text.color.b, 0.3f);
         }
 
         // Update is called once per frame
@@ -210,7 +212,7 @@ namespace Assets.Managers
             }
             else if (mapSize < 10)
             {
-                message += "Wielkość mapy musi być większa niż 10.\n";
+                message += "Wielkość mapy nie może być mniejsza niż 10 x 10.\n";
                 result = false;
             }
             if (string.IsNullOrWhiteSpace(ObstaclesCountInputField_InputField.text))
@@ -284,7 +286,6 @@ namespace Assets.Managers
             if (isPathFound)
             {
                 SetButtonEnable(ClearPathButton, true);
-                SetGameActive();
             }
         }
         private bool CheckMapName(string mapName, out string message)
@@ -375,6 +376,10 @@ namespace Assets.Managers
         public void CloseHelp_OnClick()
         {
             SetMenuActive();
+        }
+        public void ExitButton_OnClick()
+        {
+            Application.Quit();
         }
     }
 }
