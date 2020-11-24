@@ -14,6 +14,7 @@ using UnityEngine.UI;
 using Assets.Controllers;
 using Assets.Enums;
 using UnityEngine.EventSystems;
+using Assets.Helpers;
 
 namespace Assets.Managers
 {
@@ -34,7 +35,9 @@ namespace Assets.Managers
         GameObject CloseMenuButton;
         GameObject ClearPathButton;
         GameObject MessagePanel;
+        Slider ProgressBar;
 
+        TextMeshProUGUI LoadBarPercentageTMP;
         TMP_InputField MapSizeInputField_InputField;
         TMP_InputField ObstaclesCountInputField_InputField;
         TMP_InputField MapNameInputField_InputField;
@@ -52,6 +55,7 @@ namespace Assets.Managers
         {
             CheckLoadedMaps();
             SetDropdownDefaultValues();
+
         }
         public void ShowMessage(string message)
         {
@@ -102,8 +106,9 @@ namespace Assets.Managers
             CloseMenuButton = GameObject.Find("CloseMenuButton");
             ClearPathButton = GameObject.Find("ClearPathButton");
             MessagePanel = GameObject.Find("MessagePanel");
+            ProgressBar = GameObject.Find("ProgressBar").GetComponent<Slider>();
+            LoadBarPercentageTMP = GameObject.Find("LoadBarPercentageTMP").GetComponent<TextMeshProUGUI>();
         }
-
         private void SetObjects()
         {
             MapSizeInputField_InputField = MapSizeInputField.GetComponent<TMP_InputField>();
@@ -120,6 +125,9 @@ namespace Assets.Managers
             {
                 AlgorithmsDropdown_OnValueChanged(AlgorithmsDropdown_Dropdown);
             });
+            ProgressBar.gameObject.SetActive(false);
+            SetProgressBarValue(0);
+
             LoadMapsToMapDropdown();
             LoadAlgorithmsToAlgorithimDropdown();
             SetButtonEnable(InputMapNameButton, false);
@@ -176,26 +184,60 @@ namespace Assets.Managers
         {
         
         }
+        void ShowProgressBar()
+        {
+            ProgressBar.gameObject.SetActive(true);
+            MainManager.MapController.LoadingProgress = 0;
+        }
+        IEnumerator LoadProgressBar(IEnumerable drawMapAction)
+        {
+            foreach (int progressValue in drawMapAction)
+            {
+                if(ProgressBar.value != progressValue)
+                {
+                    SetProgressBarValue(progressValue);
+                    yield return null;
+                }
+            }
+            MainManager.MapController.IsMapInstantiated = true;
+        }
+        public void SetProgressBarValue(int value)
+        {
+            ProgressBar.value = value;
+            LoadBarPercentageTMP.text = value + "%";
+        }
+
         public void StartButton_OnClick()
+        {
+            StartCoroutine(CreateMap());
+        }
+        public IEnumerator CreateMap()
         {
             string message;
             if (!CheckInputFields(out message))
             {
                 ShowMessage(message);
-                return;
+                yield break;
             }
-
             MainManager.MapController.ActiveMap.MapSize = int.Parse(MapSizeInputField_InputField.text);
             MainManager.MapController.ActiveMap.ObstacleCount = int.Parse(ObstaclesCountInputField_InputField.text);
+            MainManager.MapController.ResetMap();
+
+            ShowProgressBar();
+            StartCoroutine(LoadProgressBar(MainManager.MapController.AddNewFloorToScene()));
+            yield return new WaitUntil(() => MainManager.MapController.IsMapInstantiated);
             MainManager.MapController.GenerateMap();
+
             SetButtonEnable(InputMapNameButton, true);
             SetButtonEnable(FindShortestWayButton, true);
             SetButtonEnable(CloseMenuButton, true);
             SetButtonEnable(ClearPathButton, false);
+            ProgressBar.gameObject.SetActive(false);
+
             SetGameActive();
             MainManager.CameraManager.SetDefaultCameraLocation(MainManager.MapController.ActiveMap);
+            DistanceToAppearHelper.DistanceToAppear = MainManager.MapController.GetShortestDistance();
         }
-
         private bool CheckInputFields(out string message)
         {
             message = "";
@@ -208,11 +250,6 @@ namespace Assets.Managers
             if (string.IsNullOrWhiteSpace(MapSizeInputField_InputField.text))
             {
                 message += "Proszę wprowadzić wielkość mapy.\n";
-                result = false;
-            }
-            else if (mapSize < 10)
-            {
-                message += "Wielkość mapy nie może być mniejsza niż 10 x 10.\n";
                 result = false;
             }
             if (string.IsNullOrWhiteSpace(ObstaclesCountInputField_InputField.text))
@@ -243,13 +280,20 @@ namespace Assets.Managers
         }
         public void LoadMapButton_OnClick()
         {
-            LoadMapToScene();
-            MainManager.CameraManager.SetDefaultCameraLocation(MainManager.MapController.ActiveMap);
+            StartCoroutine(LoadMapToScene());
         }
 
-        private void LoadMapToScene()
+        private IEnumerator LoadMapToScene()
         {
+            ShowProgressBar();
             LoadMapToObject(SavedMapsDropdown_Dropdown.options[SavedMapsDropdown_Dropdown.value].text);
+            MainManager.MapController.ResetMap();
+            MainManager.MapController.ActiveMap = MainManager.MapController.LoadedMap.Clone();
+
+            ShowProgressBar();
+            StartCoroutine(LoadProgressBar(MainManager.MapController.LoadFloorToScene()));
+            yield return new WaitUntil(() => MainManager.MapController.IsMapInstantiated);
+
             MainManager.MapController.GenerateLoadedMap();
             SetButtonEnable(InputMapNameButton, true);
             SetButtonEnable(FindShortestWayButton, true);
@@ -258,7 +302,10 @@ namespace Assets.Managers
                 SetButtonEnable(ClearPathButton, true);
             else
                 SetButtonEnable(ClearPathButton, false);
+            ProgressBar.gameObject.SetActive(false);
             SetGameActive();
+            MainManager.CameraManager.SetDefaultCameraLocation(MainManager.MapController.ActiveMap);
+            DistanceToAppearHelper.DistanceToAppear = MainManager.MapController.GetShortestDistance();
         }
         public void InputMapNameButton_OnClick()
         {

@@ -4,7 +4,6 @@ using Assets.Models;
 using Assets.IOData;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -13,6 +12,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Assets.Managers;
+using System.Threading;
+using System.Collections;
 
 namespace Assets.Controllers
 {
@@ -25,6 +26,8 @@ namespace Assets.Controllers
         System.Random Random;
         FloorController FloorController;
         public bool IsPathFound = false;
+        public int LoadingProgress;
+        public bool IsMapInstantiated = false;
         public MapController()
         {
             SetObjects();
@@ -59,6 +62,11 @@ namespace Assets.Controllers
             SavedMaps = IODataManager.LoadMapsByMapNames(mapList);
         }
 
+        public float GetShortestDistance()
+        {
+            return Vector3.Distance(ActiveMap.FloorElements[ActiveMap.MapSize / 2, ActiveMap.MapSize - 1].GameObject.transform.position, Camera.main.transform.position);
+        }
+
         private void MakeMainMapFile()
         {
             IODataManager.CreateMainFile();
@@ -66,9 +74,6 @@ namespace Assets.Controllers
 
         public void GenerateMap()
         {
-            IsPathFound = false;
-            ClearFloorElements();
-            AddNewFloorToScene();
             AddObstacles();
             ActiveMap.GetFloorElementsNormal();
             SetStartAndFinish();
@@ -76,12 +81,17 @@ namespace Assets.Controllers
         }
         public void GenerateLoadedMap()
         {
-            IsPathFound = false;
-            ClearFloorElements();
-            ActiveMap = LoadedMap.Clone();
-            LoadFloorToScene();
+            IsMapInstantiated = false;
             SetMaterialsAccordingToFloorType();
         }
+
+        public void ResetMap()
+        {
+            IsMapInstantiated = false;
+            IsPathFound = false;
+            ClearFloorElements();
+        }
+
         private void SetMaterialsAccordingToFloorType()
         {
             foreach(var floorElement in ActiveMap.FloorElements)
@@ -112,13 +122,15 @@ namespace Assets.Controllers
         {
             foreach (var floorElement in ActiveMap.FloorElements)
             {
-                GameObject.Destroy(floorElement.GameObject);
+                if(floorElement.GameObject != null)
+                    GameObject.Destroy(floorElement.GameObject);
             }
             ActiveMap.FloorElements = new FloorElementObject[ActiveMap.MapSize, ActiveMap.MapSize];
         }
 
-        private void AddNewFloorToScene()
+        public IEnumerable AddNewFloorToScene()
         {
+            int count = 1;
             for (int i = 0; i < ActiveMap.MapSize; i++)
             {
                 for (int j = 0; j < ActiveMap.MapSize; j++)
@@ -129,48 +141,46 @@ namespace Assets.Controllers
                     FloorElementObject floorElement = new FloorElementObject(prefabFloor);
                     floorElement.FloorElementType = FloorElementTypeEnum.NORMAL;
                     ActiveMap.FloorElements[i, j] = floorElement;
+                    LoadingProgress = SetProgressBarValue(count, ActiveMap.FloorElements.Length);
+                    if (LoadingProgress % 10 == 0)
+                    {
+                        yield return LoadingProgress;
+                    }
+                    count++;
                 }
             }
         }
-        private void LoadFloorToScene()
+
+        private int SetProgressBarValue(int count, int mapSize)
         {
+            return (int)(((float)count / mapSize) * 100);
+        }
+        public IEnumerable LoadFloorToScene()
+        {
+            int count = 1;
             foreach(var floorElement in ActiveMap.FloorElements)
             {
                 var prefabFloor = GameObject.Instantiate(FloorController.FloorElement);
                 prefabFloor.transform.parent = Floor.transform;
                 prefabFloor.transform.localPosition = floorElement.Location;
                 floorElement.GameObject = prefabFloor;
-                if(floorElement.FloorElementType == FloorElementTypeEnum.PATH)
+                if(floorElement.FloorElementType == FloorElementTypeEnum.PATH && !IsPathFound)
                     IsPathFound = true;
+                LoadingProgress = SetProgressBarValue(count, ActiveMap.FloorElements.Length);
+                if (LoadingProgress % 10 == 0)
+                {
+                    yield return LoadingProgress;
+                }
+                count++;
             }
         }
+
         private void AddObstacles()
         {
             for (int i = 0; i < ActiveMap.ObstacleCount; i++)
             {
-                int obstacleWidth = Random.Next(1, 3);
-                int obstacleHeight = Random.Next(1, 3);
                 Vector3 obstacleLocation = new Vector3(Random.Next(0, ActiveMap.MapSize), 0, Random.Next(ActiveMap.MapSize));
                 ActiveMap.FloorElements[(int)obstacleLocation.x, (int)obstacleLocation.z].FloorElementType = FloorElementTypeEnum.OBSTACLE;
-                if(obstacleWidth == 2 
-                    && obstacleLocation.x < ActiveMap.MapSize - 1
-                )
-                {
-                    ActiveMap.FloorElements[(int)obstacleLocation.x + 1, (int)obstacleLocation.z].FloorElementType = FloorElementTypeEnum.OBSTACLE;
-                }
-                if (obstacleHeight == 2
-                    && obstacleLocation.z < ActiveMap.MapSize - 1
-                )
-                {
-                    ActiveMap.FloorElements[(int)obstacleLocation.x, (int)obstacleLocation.z + 1].FloorElementType = FloorElementTypeEnum.OBSTACLE;
-                }
-                if (obstacleHeight == 2
-                    && obstacleLocation.z < ActiveMap.MapSize - 1
-                    && obstacleWidth == 2
-                    && obstacleLocation.x < ActiveMap.MapSize - 1)
-                {
-                    ActiveMap.FloorElements[(int)obstacleLocation.x + 1, (int)obstacleLocation.z + 1].FloorElementType = FloorElementTypeEnum.OBSTACLE;
-                }
             }
         }
 

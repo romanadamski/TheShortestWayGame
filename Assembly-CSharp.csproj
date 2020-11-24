@@ -67,6 +67,7 @@
     <Compile Include="Assets\Algorithms\BellmanFord.cs" />
     <Compile Include="Assets\Algorithms\Dijkstra.cs" />
     <Compile Include="Assets\ApplicationObjects\FloorElementObject.cs" />
+    <Compile Include="Assets\ApplicationObjects\FloorElementScriptable.cs" />
     <Compile Include="Assets\ApplicationObjects\MapObject.cs" />
     <Compile Include="Assets\ApplicationObjects\Mapper.cs" />
     <Compile Include="Assets\Controllers\ErrorHelper.cs" />
@@ -77,10 +78,13 @@
     <Compile Include="Assets\Enums\AlgothitmEnum.cs" />
     <Compile Include="Assets\Enums\FloorElementTypeEnum.cs" />
     <Compile Include="Assets\Enums\GameModeEnum.cs" />
+    <Compile Include="Assets\Helpers\DistanceToAppearHelper.cs" />
     <Compile Include="Assets\IOData\IODataManager.cs" />
     <Compile Include="Assets\Managers\CameraManager.cs" />
     <Compile Include="Assets\Managers\CanvasManager.cs" />
+    <Compile Include="Assets\Managers\InputFieldsManager.cs" />
     <Compile Include="Assets\Managers\MainManager.cs" />
+    <Compile Include="Assets\MeshMonitor.cs" />
     <Compile Include="Assets\Models\FloorElementModel.cs" />
     <Compile Include="Assets\Models\MapModel.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
