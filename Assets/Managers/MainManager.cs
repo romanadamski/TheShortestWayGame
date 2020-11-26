@@ -16,18 +16,7 @@ namespace Assets.Managers
     {
         public static CanvasManager CanvasManager;
         public static CameraManager CameraManager;
-        public static MapController mapController;
-        public static MapController MapController
-        {
-            get
-            {
-                return mapController;
-            }
-            set
-            {
-                mapController = value;
-            }
-        }
+        public static MapController MapController;
         private static GameModeEnum gameMode;
         public static GameModeEnum GameMode
         {
@@ -96,7 +85,7 @@ namespace Assets.Managers
         {
             CanvasManager = Managers.GetComponent<CanvasManager>();
             CameraManager = Managers.GetComponent<CameraManager>();
-            MapController = new MapController();
+            MapController = Managers.GetComponent<MapController>();
         }
     }
 }

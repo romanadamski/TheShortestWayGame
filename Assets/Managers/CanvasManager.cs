@@ -35,9 +35,11 @@ namespace Assets.Managers
         GameObject CloseMenuButton;
         GameObject ClearPathButton;
         GameObject MessagePanel;
-        Slider ProgressBar;
 
+        Slider ProgressBar;
+        TextMeshProUGUI ProgressBarInfoTMP;
         TextMeshProUGUI LoadBarPercentageTMP;
+
         TMP_InputField MapSizeInputField_InputField;
         TMP_InputField ObstaclesCountInputField_InputField;
         TMP_InputField MapNameInputField_InputField;
@@ -108,6 +110,7 @@ namespace Assets.Managers
             MessagePanel = GameObject.Find("MessagePanel");
             ProgressBar = GameObject.Find("ProgressBar").GetComponent<Slider>();
             LoadBarPercentageTMP = GameObject.Find("LoadBarPercentageTMP").GetComponent<TextMeshProUGUI>();
+            ProgressBarInfoTMP = GameObject.Find("ProgressBarInfoTMP").GetComponent<TextMeshProUGUI>();
         }
         private void SetObjects()
         {
@@ -189,8 +192,11 @@ namespace Assets.Managers
             ProgressBar.gameObject.SetActive(true);
             MainManager.MapController.LoadingProgress = 0;
         }
-        IEnumerator LoadProgressBar(IEnumerable drawMapAction)
+        public IEnumerator LoadProgressBar(IEnumerable drawMapAction, string progressInfo)
         {
+            SetProgressBarValue(0);
+            ProgressBarInfoTMP.text = progressInfo;
+
             foreach (int progressValue in drawMapAction)
             {
                 if(ProgressBar.value != progressValue)
@@ -199,7 +205,6 @@ namespace Assets.Managers
                     yield return null;
                 }
             }
-            MainManager.MapController.IsMapInstantiated = true;
         }
         public void SetProgressBarValue(int value)
         {
@@ -213,6 +218,7 @@ namespace Assets.Managers
         }
         public IEnumerator CreateMap()
         {
+            DateTime now = DateTime.Now;
             string message;
             if (!CheckInputFields(out message))
             {
@@ -221,17 +227,18 @@ namespace Assets.Managers
             }
             MainManager.MapController.ActiveMap.MapSize = int.Parse(MapSizeInputField_InputField.text);
             MainManager.MapController.ActiveMap.ObstacleCount = int.Parse(ObstaclesCountInputField_InputField.text);
-            MainManager.MapController.ResetMap();
-
+            
             ShowProgressBar();
-            StartCoroutine(LoadProgressBar(MainManager.MapController.AddNewFloorToScene()));
-            yield return new WaitUntil(() => MainManager.MapController.IsMapInstantiated);
-            MainManager.MapController.GenerateMap();
+
+            StartCoroutine(MainManager.MapController.GenerateMap(this));
+
+            yield return new WaitUntil(() => MainManager.MapController.IsMapGenerated);
 
             SetButtonEnable(InputMapNameButton, true);
             SetButtonEnable(FindShortestWayButton, true);
             SetButtonEnable(CloseMenuButton, true);
             SetButtonEnable(ClearPathButton, false);
+
             ProgressBar.gameObject.SetActive(false);
 
             SetGameActive();
@@ -285,16 +292,12 @@ namespace Assets.Managers
 
         private IEnumerator LoadMapToScene()
         {
-            ShowProgressBar();
             LoadMapToObject(SavedMapsDropdown_Dropdown.options[SavedMapsDropdown_Dropdown.value].text);
-            MainManager.MapController.ResetMap();
-            MainManager.MapController.ActiveMap = MainManager.MapController.LoadedMap.Clone();
-
             ShowProgressBar();
-            StartCoroutine(LoadProgressBar(MainManager.MapController.LoadFloorToScene()));
-            yield return new WaitUntil(() => MainManager.MapController.IsMapInstantiated);
 
-            MainManager.MapController.GenerateLoadedMap();
+            StartCoroutine(MainManager.MapController.GenerateLoadedMap(this));
+            yield return new WaitUntil(() => MainManager.MapController.IsMapGenerated);
+
             SetButtonEnable(InputMapNameButton, true);
             SetButtonEnable(FindShortestWayButton, true);
             SetButtonEnable(CloseMenuButton, true);
@@ -379,6 +382,7 @@ namespace Assets.Managers
         {
             MainMenuPanel.SetActive(true);
             TheGamePanel.SetActive(false);
+            ToogleFloor(false);
             InputMapNamePanel.SetActive(false);
             HelpPanel.SetActive(false);
             MessagePanel.SetActive(false);
@@ -388,6 +392,7 @@ namespace Assets.Managers
         {
             MainMenuPanel.SetActive(false);
             TheGamePanel.SetActive(true);
+            ToogleFloor(true);
             InputMapNamePanel.SetActive(false);
             HelpPanel.SetActive(false);
             MessagePanel.SetActive(false);
@@ -397,6 +402,7 @@ namespace Assets.Managers
         {
             MainMenuPanel.SetActive(false);
             TheGamePanel.SetActive(false);
+            ToogleFloor(false);
             InputMapNamePanel.SetActive(true);
             HelpPanel.SetActive(false);
             MessagePanel.SetActive(false);
@@ -406,6 +412,7 @@ namespace Assets.Managers
         {
             MainMenuPanel.SetActive(false);
             TheGamePanel.SetActive(false);
+            ToogleFloor(false);
             InputMapNamePanel.SetActive(false);
             HelpPanel.SetActive(true);
             MessagePanel.SetActive(false);
@@ -415,6 +422,11 @@ namespace Assets.Managers
         {
             MessagePanel.SetActive(true);
             MainManager.GameMode = GameModeEnum.MESSAGE_PANEL;
+        }
+        void ToogleFloor(bool enable)
+        {
+            if(MainManager.MapController.Floor != null)
+                MainManager.MapController.Floor?.SetActive(enable);
         }
         public void ShowHelpPanel_OnClick()
         {

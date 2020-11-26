@@ -17,22 +17,26 @@ using System.Collections;
 
 namespace Assets.Controllers
 {
-    public class MapController
+    public class MapController : MonoBehaviour
     {
         public MapObject ActiveMap;
         public MapObject LoadedMap;
         public List<MapObject> SavedMaps;
-        GameObject Floor;
+        public GameObject Floor;
         System.Random Random;
         FloorController FloorController;
         public bool IsPathFound = false;
         public int LoadingProgress;
         public bool IsMapInstantiated = false;
-        public MapController()
+        public bool IsMapReset = false;
+        public bool IsMapGenerated = false;
+
+        private void Awake()
         {
             SetObjects();
             PrepareMap();
         }
+
         public void LoadMapByName(string mapName)
         {
             PrepareMap(mapName);
@@ -72,24 +76,61 @@ namespace Assets.Controllers
             IODataManager.CreateMainFile();
         }
 
-        public void GenerateMap()
+        public IEnumerator GenerateMap(CanvasManager canvasManager)
         {
+            ResetMap(canvasManager);
+            yield return new WaitUntil(() => IsMapReset);
+
+            StartCoroutine(canvasManager.LoadProgressBar(AddNewFloorToScene(), "Trwa ładowanie mapy..."));
+            yield return new WaitUntil(() => IsMapInstantiated);
+
             AddObstacles();
             ActiveMap.GetFloorElementsNormal();
             SetStartAndFinish();
             SetMaterialsAccordingToFloorType();
+
+            IsMapGenerated = true;
         }
-        public void GenerateLoadedMap()
+        public IEnumerator GenerateLoadedMap(CanvasManager canvasManager)
         {
-            IsMapInstantiated = false;
+            ResetMap(canvasManager);
+            yield return new WaitUntil(() => IsMapReset);
+
+            ActiveMap = LoadedMap.Clone();
+            StartCoroutine(canvasManager.LoadProgressBar(LoadFloorToScene(), "Trwa ładowanie mapy..."));
+            yield return new WaitUntil(() => IsMapInstantiated);
+
             SetMaterialsAccordingToFloorType();
+
+            IsMapGenerated = true;
         }
 
-        public void ResetMap()
+        public void ResetMap(CanvasManager canvasManager)
         {
-            IsMapInstantiated = false;
             IsPathFound = false;
-            ClearFloorElements();
+            IsMapReset = false;
+            IsMapInstantiated = false;
+            IsMapGenerated = false;
+            StartCoroutine(canvasManager.LoadProgressBar(ClearFloorElements(), "Trwa czyszczenie poprzedniej mapy..."));
+        }
+
+        private IEnumerable ClearFloorElements()
+        {
+            int count = 1;
+            foreach (var floorElement in ActiveMap.FloorElements)
+            {
+                if (floorElement.GameObject != null)
+                    GameObject.Destroy(floorElement.GameObject);
+
+                count++;
+                LoadingProgress = SetProgressBarValue(count, ActiveMap.FloorElements.Length);
+                if (LoadingProgress % 10 == 0)
+                {
+                    yield return LoadingProgress;
+                }
+            }
+            ActiveMap.FloorElements = new FloorElementObject[ActiveMap.MapSize, ActiveMap.MapSize];
+            IsMapReset = true;
         }
 
         private void SetMaterialsAccordingToFloorType()
@@ -117,16 +158,6 @@ namespace Assets.Controllers
                 ActiveMap.FinishElement.FloorElementType = FloorElementTypeEnum.FINISH;
             }
         }
-        
-        private void ClearFloorElements()
-        {
-            foreach (var floorElement in ActiveMap.FloorElements)
-            {
-                if(floorElement.GameObject != null)
-                    GameObject.Destroy(floorElement.GameObject);
-            }
-            ActiveMap.FloorElements = new FloorElementObject[ActiveMap.MapSize, ActiveMap.MapSize];
-        }
 
         public IEnumerable AddNewFloorToScene()
         {
@@ -149,6 +180,7 @@ namespace Assets.Controllers
                     count++;
                 }
             }
+            IsMapInstantiated = true;
         }
 
         private int SetProgressBarValue(int count, int mapSize)
@@ -173,6 +205,7 @@ namespace Assets.Controllers
                 }
                 count++;
             }
+            IsMapInstantiated = true;
         }
 
         private void AddObstacles()
