@@ -22,13 +22,13 @@ namespace Assets.Controllers
         public MapObject ActiveMap;
         public MapObject LoadedMap;
         public List<MapObject> SavedMaps;
+        public GameObject FloorStore;
         public GameObject Floor;
         System.Random Random;
         FloorController FloorController;
         public bool IsPathFound = false;
         public int LoadingProgress;
         public bool IsMapInstantiated = false;
-        public bool IsMapReset = false;
         public bool IsMapGenerated = false;
 
         private void Awake()
@@ -46,15 +46,15 @@ namespace Assets.Controllers
             if (mapName == null)
                 ActiveMap = new MapObject();
             else
-                LoadedMap = SavedMaps.Find(x => x?.Name == mapName).Clone();
+                LoadedMap = SavedMaps.Find(x => x?.Name == mapName)?.Clone();
         }
 
         private void SetObjects()
         {
             ActiveMap = new MapObject();
             LoadedMap = new MapObject();
-            Floor = GameObject.Find("Floor");
-            FloorController = Floor.GetComponent<FloorController>();
+            Floor = GameObject.Instantiate(FloorStore);
+            FloorController = FloorStore.GetComponent<FloorController>();
             SavedMaps = new List<MapObject>();
             Random = new System.Random();
         }
@@ -78,9 +78,7 @@ namespace Assets.Controllers
 
         public IEnumerator GenerateMap(CanvasManager canvasManager)
         {
-            ResetMap(canvasManager);
-            yield return new WaitUntil(() => IsMapReset);
-
+            ResetMap();
             StartCoroutine(canvasManager.LoadProgressBar(AddNewFloorToScene(), "Trwa ładowanie mapy..."));
             yield return new WaitUntil(() => IsMapInstantiated);
 
@@ -93,9 +91,7 @@ namespace Assets.Controllers
         }
         public IEnumerator GenerateLoadedMap(CanvasManager canvasManager)
         {
-            ResetMap(canvasManager);
-            yield return new WaitUntil(() => IsMapReset);
-
+            ResetMap();
             ActiveMap = LoadedMap.Clone();
             StartCoroutine(canvasManager.LoadProgressBar(LoadFloorToScene(), "Trwa ładowanie mapy..."));
             yield return new WaitUntil(() => IsMapInstantiated);
@@ -105,32 +101,19 @@ namespace Assets.Controllers
             IsMapGenerated = true;
         }
 
-        public void ResetMap(CanvasManager canvasManager)
+        public void ResetMap()
         {
             IsPathFound = false;
-            IsMapReset = false;
             IsMapInstantiated = false;
             IsMapGenerated = false;
-            StartCoroutine(canvasManager.LoadProgressBar(ClearFloorElements(), "Trwa czyszczenie poprzedniej mapy..."));
+            ClearFloorElements();
         }
 
-        private IEnumerable ClearFloorElements()
+        private void ClearFloorElements()
         {
-            int count = 1;
-            foreach (var floorElement in ActiveMap.FloorElements)
-            {
-                if (floorElement.GameObject != null)
-                    GameObject.Destroy(floorElement.GameObject);
-
-                count++;
-                LoadingProgress = SetProgressBarValue(count, ActiveMap.FloorElements.Length);
-                if (LoadingProgress % 10 == 0)
-                {
-                    yield return LoadingProgress;
-                }
-            }
+            GameObject.Destroy(Floor);
+            Floor = GameObject.Instantiate(FloorStore);
             ActiveMap.FloorElements = new FloorElementObject[ActiveMap.MapSize, ActiveMap.MapSize];
-            IsMapReset = true;
         }
 
         private void SetMaterialsAccordingToFloorType()

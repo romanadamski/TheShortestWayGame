@@ -50,14 +50,13 @@ namespace Assets.Managers
         {
             GetGameObjects();
             SetMenuActive();
-            SetObjects();
         }
         // Start is called before the first frame update
         void Start()
         {
+            SetObjects();
             CheckLoadedMaps();
             SetDropdownDefaultValues();
-
         }
         public void ShowMessage(string message)
         {
